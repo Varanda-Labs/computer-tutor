@@ -1,0 +1,3 @@
+[submodule "C-language/raylib"]
+	path = C-language/raylib
+	url = https://github.com/Varanda-Labs/raylib.git
