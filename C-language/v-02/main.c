@@ -31,6 +31,9 @@ Este eh a proxima linha\n"
 
 #define NUMERO_DE_ERROS 5
 
+#define COR_AMARELO  "\e[33m"
+#define COR_NORMAL   "\e[39m"
+
 char * erros[NUMERO_DE_ERROS] = { ERRO_1, ERRO_2, ERRO_3, ERRO_4, ERRO_5};
 
 //#define RET_ERRO_PROGRAMACAO    -1
@@ -48,7 +51,33 @@ typedef enum
     RET_ENTRADA_ACEITA,
 } ret_t;
 
-char palavra[128];
+char palavra_secreta[128];
+char palavra[128];          // eh mostrado ao jogador, inicialmente : _
+
+void limpa_entrada()
+{
+    char c;
+    do
+    {
+        c = getchar();
+    } while(c != '\n' ||  c == EOF);
+}
+
+void  print_palavra()
+{
+    //printf("pavalvra = %s\n", palavra);
+    int len = strlen(palavra);
+    int i;
+    printf(COR_AMARELO);
+
+    for (i=0; i<len; i++)
+    {
+        printf("%c ", palavra[i]);
+    }
+    printf(COR_NORMAL);
+    printf("\n");
+
+}
 
 char get_letra()
 {
@@ -60,6 +89,7 @@ char get_letra()
     {
         int letra_valida = 0; // zero significa invalida
         r = scanf("%c", &letra);
+        limpa_entrada();
         if (r == 1)
         {
             if (letra == '\n')
@@ -119,9 +149,17 @@ ret_t get_palavra( char * pergunta)
 {
     int r;
     printf("%s: ", pergunta);
-    r = scanf("%s", palavra);
+    r = scanf("%s", palavra_secreta);
     if (r == 1)
     {
+        int i;
+        int len = strlen(palavra_secreta);
+        for (i = 0; i < len; i++ )
+        {
+            palavra[i] = '_';
+        }
+        palavra[i] = 0;
+
         return RET_ENTRADA_ACEITA;
     }
     return RET_ENTRADA_INVALIDA;
@@ -183,11 +221,11 @@ int test_2()
     r = get_palavra("Digite a palavra secreta");
     if (r == RET_ENTRADA_ACEITA)
     {
-        printf("A Palavra eh: %s, comprimento = %d caracteres\n", palavra, (int) strlen(palavra));
-        r = para_minusculo(palavra);
+        printf("A Palavra eh: %s, comprimento = %d caracteres\n", palavra_secreta, (int) strlen(palavra_secreta));
+        r = para_minusculo(palavra_secreta);
         if (r == RET_ENTRADA_ACEITA)
         {
-            printf("resultado limpo = %s\n", palavra);
+            printf("resultado limpo = %s\n", palavra_secreta);
         }
         else
         {
@@ -207,7 +245,7 @@ int test_2()
 void test_3()
 {
     char c = get_letra();
-    printf("Letra escolhida foi: %c", c);
+    printf("Letra escolhida foi: %c\n", c);
 }
 
 
@@ -216,6 +254,7 @@ void test_3()
 
 int main()
 {
-    test_3("ABCDEF");
+    test_2();
+    print_palavra();
     return 0;
 }
