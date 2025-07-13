@@ -81,6 +81,15 @@ void  print_palavra()
 
 char get_letra()
 {
+    char t[2];
+
+    get_palavra( "Entre com a letra desejada: ", t, 2);
+    return t[0];
+
+}
+
+char get_letra__()
+{
     char letra;
     int r;
 
@@ -145,7 +154,7 @@ ret_t para_minusculo(char * text)
     return RET_ENTRADA_ACEITA;
 }
 
-ret_t get_palavra( char * pergunta)
+ret_t get_palavra_( char * pergunta)
 {
     int r;
     printf("%s: ", pergunta);
@@ -163,6 +172,60 @@ ret_t get_palavra( char * pergunta)
         return RET_ENTRADA_ACEITA;
     }
     return RET_ENTRADA_INVALIDA;
+}
+
+ret_t get_palavra( char * pergunta, char * ponterio_texto, int numero_maximo_letras)
+{
+    char c;
+    int index = 0;
+    printf("%s", pergunta);
+
+    while(1)
+    {
+        if (index == numero_maximo_letras)
+        {
+            printf("Voce digitou mais letras do que esperado...\nTente novamente\n%s", pergunta);
+            while((c = getchar()) != '\n' && c != EOF) ;
+            index = 0;
+            continue;
+        }
+        c = getchar();
+        if (c == '\n')
+        {
+            if (index == 0)
+            {
+                printf("Nenhuma letra presente...\n%s", pergunta);
+                continue;
+            }
+            break;
+        }
+
+        if (c == '\r')
+            continue;       // ignore Carrier Return
+
+        if (c >= 'A' && c <= 'Z')
+        {
+            // caracter eh valido e maiusculo
+            // vamos tranformar para minusculo
+            c = c + 32;
+            ponterio_texto[index++] = c;
+            continue;
+        }
+
+        if (c >= 'a' && c <= 'z')
+        {
+            ponterio_texto[index++] = c;
+            continue;
+        }
+
+        printf("Voce digitou caracter invalido...\nTente novamente\n%s:\n", pergunta);
+        while((c = getchar()) != '\n' && c != EOF) ;
+        index = 0;
+
+    }
+    ponterio_texto[index++] = 0;
+
+    return RET_ENTRADA_ACEITA;
 }
 
 ret_t print_erro(int tentativa)
@@ -218,7 +281,7 @@ int test_1()
 int test_2()
 {
     ret_t r;
-    r = get_palavra("Digite a palavra secreta");
+    r = get_palavra("Digite a palavra secreta: ", palavra_secreta, sizeof(palavra_secreta));
     if (r == RET_ENTRADA_ACEITA)
     {
         printf("A Palavra eh: %s, comprimento = %d caracteres\n", palavra_secreta, (int) strlen(palavra_secreta));
@@ -231,8 +294,6 @@ int test_2()
         {
             printf("palavra com caracteres nao validos\n");
         }
-
-
     }
     else
     {
@@ -248,13 +309,33 @@ void test_3()
     printf("Letra escolhida foi: %c\n", c);
 }
 
+void test_4()
+{
+    char p[32];
+    char c;
+
+    get_palavra("Enter palavra: ", p, 32);
+    printf("palavra = %s\n", p);
+
+    c = get_letra();
+    printf("letra = %c\n", c);
+
+    get_palavra("Enter palavra: ", p, 32);
+    printf("palavra = %s\n", p);
+
+    c = get_letra();
+    printf("letra = %c\n", c);
+
+}
+
+
 
 
 //---------------------------- Main -----------------------------
 
 int main()
 {
-    test_2();
+    test_4();
     print_palavra();
     return 0;
 }
