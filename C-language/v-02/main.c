@@ -326,10 +326,75 @@ void jogo()
     }
 }
 
+//---------------------------- Windows hack -----------------------------
+#ifdef _WIN32
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 4
+#define STD_OUTPUT_HANDLE 0xFFFFFFF5
+#define INVALID_HANDLE_VALUE 0
+typedef int DWORD;
+int GetConsoleMode(void *, DWORD *);
+int SetConsoleMode(void *, DWORD);
+void * GetStdHandle(DWORD);
+int set_terminal()
+{
+    DWORD dwMode = 0;
+    void * hOut;
+
+    hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut == INVALID_HANDLE_VALUE)
+    {
+        printf("GetStdHandle error\n");
+        return 1;
+    }
+
+    if (!GetConsoleMode(hOut, &dwMode))
+    {
+        printf("GetConsoleMode error\n");
+        return 1;
+    }
+
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    if (!SetConsoleMode(hOut, dwMode))
+    {
+        printf("SetConsoleMode error\n");
+        return 1;
+    }
+    return 0;
+}
+#endif // _WIN32
+
 //---------------------------- Main -----------------------------
 int main()
 {
     char sim_nao[10];
+
+#ifdef _WIN32
+    if(set_terminal() ) return 1;
+#endif // _WIN32
+
+    DWORD dwMode = 0;
+    void * hOut;
+
+    hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut == INVALID_HANDLE_VALUE)
+    {
+        printf("GetStdHandle error\n");
+        return 1;
+    }
+
+    if (!GetConsoleMode(hOut, &dwMode))
+    {
+        printf("GetConsoleMode error\n");
+        return 1;
+    }
+
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    if (!SetConsoleMode(hOut, dwMode))
+    {
+        printf("SetConsoleMode error\n");
+        //return 1;
+    }
+
     do
     {
         tamanho_palavra = 0;
