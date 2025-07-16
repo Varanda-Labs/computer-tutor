@@ -46,8 +46,10 @@ Cactos-5 pos: 5593, 721  size: 112x110
 #include "raylib.h"
 #include "raymath.h"
 
+#define LIMIT_SINGLE_JUMP
+
 #define G 400
-#define PLAYER_JUMP_SPD 430.0  //350.0f
+#define PLAYER_JUMP_SPD 420.0  //350.0f
 #define PLAYER_HOR_SPD 200.0f
 
 #define DRAW_SPEED_FACTOR 200.0
@@ -115,7 +117,7 @@ int main(void)
     UnloadImage(temp_image);
 
     Player player = { 0 };
-    player.position = (Vector2){ 400, 280 };
+    player.position = (Vector2){ 400, 830}; //280 };
     player.speed = 0;
     player.canJump = false;
 
@@ -127,6 +129,7 @@ int main(void)
     {{ 3108, 577,  643, 383}, 1, GRAY },
     {{ 4003, 431,  512, 96  }, 1, GRAY }, //   (plataforma)
     {{ 4774, 831,  1627, 130}, 1, GRAY },
+    {{ 2801, 671, 257, 96}, 1, GRAY },
     };
     /*
         box-1 pos: 293, 833   size: 1792x128
@@ -135,7 +138,8 @@ int main(void)
         box-4 pos: 2342, 829  size: 764x130
         box-5 pos: 3108, 577  size: 643x383
         box-6 pos: 4003, 431  size: 512x96     (plataforma)
-        box-7 pos: 4774, 831  size: 1627x130 */
+        box-7 pos: 4774, 831  size: 1627x130
+        box-8 pos: 2801, 671 size 257x96 */
 
 
     int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
@@ -248,10 +252,14 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
 {
     if (IsKeyDown(KEY_LEFT)) player->position.x -= PLAYER_HOR_SPD*delta;
     if (IsKeyDown(KEY_RIGHT)) player->position.x += PLAYER_HOR_SPD*delta;
-    if (IsKeyDown(KEY_SPACE) && player->canJump)
+    if ((IsKeyDown(KEY_SPACE) && player->canJump) ||
+        (IsKeyDown(KEY_UP) && player->canJump))
+
     {
         player->speed = -PLAYER_JUMP_SPD;
+#ifdef LIMIT_SINGLE_JUMP
         player->canJump = false;
+#endif
     }
 
     bool hitObstacle = false;
@@ -276,7 +284,9 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
     {
         player->position.y += player->speed*delta;
         player->speed += G*delta;
+#ifdef LIMIT_SINGLE_JUMP
         player->canJump = false;
+#endif
     }
     else player->canJump = true;
 }
