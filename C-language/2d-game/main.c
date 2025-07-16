@@ -20,6 +20,14 @@
 #define PLAYER_JUMP_SPD 350.0f
 #define PLAYER_HOR_SPD 200.0f
 
+#define DRAW_SPEED_FACTOR 200.0
+
+// image files
+#define STATIC_BACKGROUND_FILENAME "assets/background-1280x960.png"
+#define MOVING_BACKGROUND_FILENAME "assets/bk-move-6400x960.png"
+#define GROUND_FILENAME "assets/ground-01.png"
+
+
 typedef struct Player {
     Vector2 position;
     float speed;
@@ -32,15 +40,20 @@ typedef struct EnvItem {
     Color color;
 } EnvItem;
 
+//-----------------------------------------
+//  Variables (file scope)
+//-----------------------------------------
+
+
 //----------------------------------------------------------------------------------
 // Module functions declaration
 //----------------------------------------------------------------------------------
 void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta);
-void UpdateCameraCenter(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
-void UpdateCameraCenterInsideMap(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
+void UpdateCameraCenter            (Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
+void UpdateCameraCenterInsideMap   (Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraCenterSmoothFollow(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
-void UpdateCameraEvenOutOnLanding(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
-void UpdateCameraPlayerBoundsPush(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
+void UpdateCameraEvenOutOnLanding  (Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
+void UpdateCameraPlayerBoundsPush  (Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -49,10 +62,27 @@ int main(void)
 {
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 450;
+//    const int screenWidth = 800;
+//    const int screenHeight = 450;
+
+    // 1280x960
+    const int screenWidth = (1280 / 4) * 3;
+    const int screenHeight = (960 / 4) * 3;
 
     InitWindow(screenWidth, screenHeight, "raylib [core] example - 2d camera");
+
+    //---- load textures ----
+    Image temp_image = LoadImage(STATIC_BACKGROUND_FILENAME);         // Loaded in CPU memory (RAM)
+    Texture2D bg_texture = LoadTextureFromImage(temp_image);          // Image converted to texture, GPU memory (VRAM)
+    UnloadImage(temp_image);   // Once image has been converted to texture and uploaded to VRAM, it can be unloaded from RAM
+
+    temp_image = LoadImage(MOVING_BACKGROUND_FILENAME);
+    Texture2D moving_bg_texture = LoadTextureFromImage(temp_image);
+    UnloadImage(temp_image);
+
+    temp_image = LoadImage(GROUND_FILENAME);
+    Texture2D ground_texture = LoadTextureFromImage(temp_image);
+    UnloadImage(temp_image);
 
     Player player = { 0 };
     player.position = (Vector2){ 400, 280 };
@@ -60,7 +90,7 @@ int main(void)
     player.canJump = false;
     EnvItem envItems[] = {
         {{ 0, 0, 1000, 400 }, 0, LIGHTGRAY },
-        {{ 0, 400, 1000, 200 }, 1, GRAY },
+        {{ 0, 400, 1000, /*200*/ 10 }, 1, GRAY },
         {{ 300, 200, 400, 10 }, 1, GRAY },
         {{ 250, 300, 100, 10 }, 1, GRAY },
         {{ 650, 300, 100, 10 }, 1, GRAY }
@@ -106,7 +136,7 @@ int main(void)
 
         UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
 
-        camera.zoom += ((float)GetMouseWheelMove()*0.05f);
+        camera.zoom += ((float)GetMouseWheelMove()*0.05f * deltaTime * DRAW_SPEED_FACTOR);
 
         if (camera.zoom > 3.0f) camera.zoom = 3.0f;
         else if (camera.zoom < 0.25f) camera.zoom = 0.25f;
@@ -131,12 +161,24 @@ int main(void)
 
             BeginMode2D(camera);
 
-                for (int i = 0; i < envItemsLength; i++) DrawRectangleRec(envItems[i].rect, envItems[i].color);
+                //------------
+#if 1
+                DrawTexture(bg_texture, 0, 0, WHITE);
+                DrawTexture(moving_bg_texture, 0, 0, WHITE);
+                DrawTexture(ground_texture, 0, 0, WHITE);
+#else
+                DrawTexture(bg_texture, screenWidth/2 - bg_texture.width/2, screenHeight/2 - bg_texture.height/2, WHITE);
+                DrawTexture(moving_bg_texture, screenWidth/2 - moving_bg_texture.width/2, screenHeight/2 - moving_bg_texture.height/2, WHITE);
+                DrawTexture(ground_texture, screenWidth/2 - ground_texture.width/2, screenHeight/2 - ground_texture.height/2, WHITE);
+#endif
+
+                for (int i = 1; i < envItemsLength; i++) DrawRectangleRec(envItems[i].rect, envItems[i].color);
 
                 Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40.0f, 40.0f };
                 DrawRectangleRec(playerRect, RED);
-                
+
                 DrawCircleV(player.position, 5.0f, GOLD);
+
 
             EndMode2D();
 
