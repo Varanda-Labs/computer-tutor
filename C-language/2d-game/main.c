@@ -47,7 +47,7 @@ Cactos-5 pos: 5593, 721  size: 112x110
 #include "raymath.h"
 
 #define G 400
-#define PLAYER_JUMP_SPD 350.0f
+#define PLAYER_JUMP_SPD 420.0  //350.0f
 #define PLAYER_HOR_SPD 200.0f
 
 #define DRAW_SPEED_FACTOR 200.0
@@ -118,6 +118,7 @@ int main(void)
     player.position = (Vector2){ 400, 280 };
     player.speed = 0;
     player.canJump = false;
+#if 0
     EnvItem envItems[] = {
         {{ 0, 0, 1000, 400 }, 0, LIGHTGRAY },
         {{ 0, 400, 1000, /*200*/ 10 }, 1, GRAY },
@@ -125,6 +126,31 @@ int main(void)
         {{ 250, 300, 100, 10 }, 1, GRAY },
         {{ 650, 300, 100, 10 }, 1, GRAY }
     };
+#else
+    EnvItem envItems[] = {
+//        {{ 0, 0, 1000, 400 }, 0, LIGHTGRAY },
+//        {{ 0, 400, 1000, /*200*/ 10 }, 1, GRAY },
+//        {{ 300, 200, 400, 10 }, 1, GRAY },
+//        {{ 250, 300, 100, 10 }, 1, GRAY },
+//        {{ 650, 300, 100, 10 }, 1, GRAY },
+
+    {{ 293, 833, 1792, 128 }, 1, GRAY },
+    {{ 892, 627, 385, 96 }, 1, GRAY },   //(plataforma)
+    {{ 1324, 497, 515, 96 }, 1, GRAY },  //  (plataforma)
+    {{ 2342, 829,  764, 130 }, 1, GRAY },
+    {{ 3108, 577,  643, 383}, 1, GRAY },
+    {{ 4003, 431,  512, 96  }, 1, GRAY }, //   (plataforma)
+    {{ 4774, 831,  1627, 130}, 1, GRAY },
+    };
+    /*
+    box-1 pos: 293, 833   size: 1792x128
+box-2 pos: 892, 627   size: 385x96   (plataforma)
+box-3 pos: 1324, 497  size: 515x96    (plataforma)
+box-4 pos: 2342, 829  size: 764x130
+box-5 pos: 3108, 577  size: 643x383
+box-6 pos: 4003, 431  size: 512x96     (plataforma)
+box-7 pos: 4774, 831  size: 1627x130 */
+#endif
 
     int envItemsLength = sizeof(envItems)/sizeof(envItems[0]);
 
@@ -202,7 +228,7 @@ int main(void)
                 DrawTexture(ground_texture, screenWidth/2 - ground_texture.width/2, screenHeight/2 - ground_texture.height/2, WHITE);
 #endif
 
-                for (int i = 1; i < envItemsLength; i++) DrawRectangleRec(envItems[i].rect, envItems[i].color);
+                //for (int i = 1; i < envItemsLength; i++) DrawRectangleRec(envItems[i].rect, envItems[i].color);
 
                 Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40.0f, 40.0f };
                 DrawRectangleRec(playerRect, RED);
