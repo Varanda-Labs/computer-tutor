@@ -13,6 +13,36 @@
 *
 ********************************************************************************************/
 
+/*
+
+Info:
+=====
+
+Girl:
+https://www.gameart2d.com/adventurer-girl---free-sprites.html
+
+Scene:
+https://www.gameart2d.com/free-desert-platformer-tileset.html
+
+box-1 pos: 293, 833   size: 1792x128
+box-2 pos: 892, 627   size: 385x96   (plataforma)
+box-3 pos: 1324, 497  size: 515x96    (plataforma)
+box-4 pos: 2342, 829  size: 764x130
+box-5 pos: 3108, 577  size: 643x383
+box-6 pos: 4003, 431  size: 512x96     (plataforma)
+box-7 pos: 4774, 831  size: 1627x130
+
+bush-1 pos: 4130, 359  size: 133x73
+
+Cactos-1 pos: 1442, 377  size: 106x119
+Cactos-2 pos: 2626, 734  size: 92x98
+Cactos-3 pos: 3256, 464  size: 109x117
+Cactos-4 pos: 5026, 718  size: 111x112
+Cactos-5 pos: 5593, 721  size: 112x110
+
+
+*/
+
 #include "raylib.h"
 #include "raymath.h"
 
