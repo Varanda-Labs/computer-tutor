@@ -2,12 +2,12 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="demo-raylib-02" />
+		<Option title="demo-raylib-03" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/demo-raylib-02" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/demo-raylib-03" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -18,11 +18,13 @@
 				<Linker>
 					<Add library="raylib" />
 					<Add library="m" />
-					<Add directory="../libs/linux" />
+					<Add library="winmm" />
+					<Add library="gdi32" />
+					<Add directory="../libs/win" />
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/demo-raylib-02" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/demo-raylib-03" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -34,7 +36,9 @@
 					<Add option="-s" />
 					<Add library="raylib" />
 					<Add library="m" />
-					<Add directory="../libs/linux" />
+					<Add library="winmm" />
+					<Add library="gdi32" />
+					<Add directory="../libs/win" />
 				</Linker>
 			</Target>
 		</Build>

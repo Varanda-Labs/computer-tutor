@@ -30,9 +30,15 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="../raylib/src" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="raylib" />
+					<Add library="m" />
+					<Add library="winmm" />
+					<Add library="gdi32" />
+					<Add directory="../libs/win" />
 				</Linker>
 			</Target>
 		</Build>
