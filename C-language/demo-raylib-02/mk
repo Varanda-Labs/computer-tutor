@@ -1,0 +1,2 @@
+gcc main.c -g -O0 -I ../raylib/src -L ../libs/linux -l raylib -l m -pthread -l dl -o game
+
