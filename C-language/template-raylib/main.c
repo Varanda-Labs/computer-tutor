@@ -35,8 +35,7 @@ int main(void)
 
             DrawTexture(texture, screenWidth/2 - texture.width/2, screenHeight/2 - texture.height/2, WHITE);
 
-            DrawText("Isso eh uma textura !!!", 360, 370, 10, GRAY);
-
+            DrawText("Isso eh uma textura !!!", 300, 400, 20, GRAY);
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
