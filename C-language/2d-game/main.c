@@ -31,6 +31,7 @@ box-4 pos: 2342, 829  size: 764x130
 box-5 pos: 3108, 577  size: 643x383
 box-6 pos: 4003, 431  size: 512x96     (plataforma)
 box-7 pos: 4774, 831  size: 1627x130
+box-8 pos: 2801, 671  size 257x96
 
 bush-1 pos: 4130, 359  size: 133x73
 
