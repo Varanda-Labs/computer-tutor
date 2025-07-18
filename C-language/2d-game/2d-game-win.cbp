@@ -7,7 +7,7 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/v-01" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/2d-game" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -18,19 +18,27 @@
 				<Linker>
 					<Add library="raylib" />
 					<Add library="m" />
-					<Add directory="../libs/linux" />
+					<Add library="winmm" />
+					<Add library="gdi32" />
+					<Add directory="../libs/win" />
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/v-01" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/2d-game" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="../raylib/src" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="raylib" />
+					<Add library="m" />
+					<Add library="winmm" />
+					<Add library="gdi32" />
+					<Add directory="../libs/win" />
 				</Linker>
 			</Target>
 		</Build>

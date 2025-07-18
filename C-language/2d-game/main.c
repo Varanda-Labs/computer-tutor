@@ -58,6 +58,8 @@ Cactos-5 pos: 5593, 721  size: 112x110
 #define PLAYER_JUMP_SPD 420.0  //350.0f
 #define PLAYER_HOR_SPD 200.0f
 
+#define BACKGROUND_OFFSET 80
+
 #define DRAW_SPEED_FACTOR 200.0
 
 // image files
@@ -87,6 +89,7 @@ typedef struct EnvItem {
 // Module functions declaration
 //----------------------------------------------------------------------------------
 void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta);
+void UpdateCameraCenterMV          (Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraCenter            (Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraCenterInsideMap   (Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraCenterSmoothFollow(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
@@ -121,9 +124,11 @@ int main(void)
     temp_image = LoadImage(GROUND_FILENAME);
     Texture2D ground_texture = LoadTextureFromImage(temp_image);
     UnloadImage(temp_image);
+#define PLAYER_INITIAL_X 400
+#define PLAYER_INITIAL_Y 830
 
     Player player = { 0 };
-    player.position = (Vector2){ 400, 830}; //280 };
+    player.position = (Vector2){ PLAYER_INITIAL_X, PLAYER_INITIAL_Y};
     player.speed = 0;
     player.canJump = false;
 
@@ -158,6 +163,7 @@ int main(void)
 
     // Store pointers to the multiple update camera functions
     void (*cameraUpdaters[])(Camera2D*, Player*, EnvItem*, int, float, int, int) = {
+        UpdateCameraCenterMV,
         UpdateCameraCenter,
         UpdateCameraCenterInsideMap,
         UpdateCameraCenterSmoothFollow,
@@ -169,6 +175,7 @@ int main(void)
     int cameraUpdatersLength = sizeof(cameraUpdaters)/sizeof(cameraUpdaters[0]);
 
     char *cameraDescriptions[] = {
+        "Fixo na vertical (Jogo)",
         "Follow player center",
         "Follow player center, but clamp to map edges",
         "Follow player center; smoothed",
@@ -178,6 +185,7 @@ int main(void)
 
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
+    int moving_bg_texture_x = 0;
 
     // Main game loop
     while (!WindowShouldClose())
@@ -196,7 +204,7 @@ int main(void)
         if (IsKeyPressed(KEY_R))
         {
             camera.zoom = 1.0f;
-            player.position = (Vector2){ 400, 280 };
+            player.position = (Vector2){ PLAYER_INITIAL_X, PLAYER_INITIAL_Y };
         }
 
         if (IsKeyPressed(KEY_C)) cameraOption = (cameraOption + 1)%cameraUpdatersLength;
@@ -215,8 +223,8 @@ int main(void)
 
                 //------------
 #if 1
-                DrawTexture(bg_texture, 0, 0, WHITE);
-                DrawTexture(moving_bg_texture, 0, 0, WHITE);
+                DrawTexture(bg_texture, player.position.x - PLAYER_INITIAL_X - BACKGROUND_OFFSET, 0, WHITE);
+                DrawTexture(moving_bg_texture, moving_bg_texture_x - (BACKGROUND_OFFSET * 4), 0, WHITE);
                 DrawTexture(ground_texture, 0, 0, WHITE);
 #else
                 DrawTexture(bg_texture, screenWidth/2 - bg_texture.width/2, screenHeight/2 - bg_texture.height/2, WHITE);
@@ -230,6 +238,8 @@ int main(void)
                 DrawRectangleRec(playerRect, RED);
 
                 DrawCircleV(player.position, 5.0f, GOLD);
+
+                moving_bg_texture_x = player.position.x / 2;
 
 
             EndMode2D();
@@ -295,6 +305,13 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
 #endif
     }
     else player->canJump = true;
+}
+
+void UpdateCameraCenterMV(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height)
+{
+    camera->offset = (Vector2){ width/2.0f, height - 120};///2.0f };
+    Vector2 pos = {player->position.x, PLAYER_INITIAL_Y};
+    camera->target = pos; //player->position;
 }
 
 void UpdateCameraCenter(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height)
