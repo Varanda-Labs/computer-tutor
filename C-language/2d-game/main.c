@@ -1,5 +1,15 @@
 /*******************************************************************************************
 *
+*   Animation sample, by Varanda Labs
+*   http://www.varanda.ca
+*   Code changes are: Copyright (c) 2025 Varanda Labs Inc.
+*
+*   Assets:
+*       https://www.gameart2d.com/adventurer-girl---free-sprites.html
+*       https://www.gameart2d.com/free-desert-platformer-tileset.html
+*
+*   Derived code from:
+*   ==================
 *   raylib [core] example - 2D Camera platformer
 *
 *   Example originally created with raylib 2.5, last time updated with raylib 3.0
@@ -15,14 +25,9 @@
 
 /*
 
-Info:
-=====
+Info from GIMP file:
+===================
 
-Girl:
-https://www.gameart2d.com/adventurer-girl---free-sprites.html
-
-Scene:
-https://www.gameart2d.com/free-desert-platformer-tileset.html
 
 box-1 pos: 293, 833   size: 1792x128
 box-2 pos: 892, 627   size: 385x96   (plataforma)
