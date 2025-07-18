@@ -1,5 +1,16 @@
 /*******************************************************************************************
 *
+*   Animation sample, by Varanda Labs
+*   http://www.varanda.ca
+*   Code changes are: Copyright (c) 2025 Varanda Labs Inc.
+*
+*   Assets:
+*       https://www.gameart2d.com/adventurer-girl---free-sprites.html
+*       https://www.gameart2d.com/free-desert-platformer-tileset.html
+*
+*   Derived code from:
+*   ==================
+*
 *   raylib [core] example - 2D Camera platformer
 *
 *   Example originally created with raylib 2.5, last time updated with raylib 3.0
@@ -13,8 +24,12 @@
 *
 ********************************************************************************************/
 
+// Press A key to change animation
+
 #include "raylib.h"
 #include <stdio.h>
+
+#define SPEED 200.0
 
 #define MENINA_DIR "../2d-game/assets/girl/"
 
@@ -160,10 +175,13 @@ int main(void)
         float ft = GetFrameTime();
         speed = ft * SPEED;
         anim_timer += ft;
+
+        // if the time has expired select the next frame
+        // Se o timer espirou entao seleciona o proximo frame para ser exibido via incremento de anim_idx
         if (anim_timer >= anim_array[curr_anim].frame_period) {
             anim_timer = 0;
             anim_idx++;
-            if (anim_idx >= anim_array[curr_anim].num_frames)
+            if (anim_idx >= anim_array[curr_anim].num_frames) // se ultimo frame seleciona o primeiro
                 anim_idx = 0;
         }
 
@@ -191,12 +209,15 @@ int main(void)
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
+
+            DrawText("Press A for changing animation and arrows to move her", 10, 10, 20, DARKGRAY);
+
             if (show_reverse == 0)
                 snprintf(temp_text, sizeof(temp_text), "Animacao: %s", anim_array[curr_anim].name);
             else
                 snprintf(temp_text, sizeof(temp_text), "Animacao: %s flipped", anim_array[curr_anim].name);
 
-            DrawText(temp_text, 10, 10, 20, DARKGRAY);
+            DrawText(temp_text, 10, 40, 20, DARKGRAY);
 
 
             Rectangle menina_source = {0,0, menina_texture_sample_ptr->width, menina_texture_sample_ptr->height};
