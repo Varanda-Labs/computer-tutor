@@ -399,7 +399,21 @@ Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, 
     // Se o timer espirou entao seleciona o proximo frame para ser exibido via incremento de anim_idx
     if (anim_timer >= anim_array[curr_anim].frame_period) {
         anim_timer = 0;
-        anim_idx++;
+        if (player->canJump == 0) {
+            // for jump we have a special sequence: 1,2,3 and loop 4 and 6 (indexes: 0,1,2 and loop 3 and 5):
+            switch(anim_idx)
+            {
+                case 0: anim_idx = 1; break;
+                case 1: anim_idx = 2; break;
+                case 2: anim_idx = 3; break;
+                case 3: anim_idx = 5; break;
+                case 5: anim_idx = 3; break;
+                default: break;
+            }
+        }
+        else {
+            anim_idx++;
+        }
         if (anim_idx >= anim_array[curr_anim].num_frames) // se ultimo frame seleciona o primeiro
             anim_idx = 0;
     }
@@ -409,17 +423,22 @@ Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, 
     if (IsKeyDown(KEY_LEFT)) {
         player->position.x -= PLAYER_HOR_SPD*delta;
         face_right = 0;
-        UpdatePlayerState(player, ANIM_ID_RUN);
+        if (player->canJump) {
+            UpdatePlayerState(player, ANIM_ID_RUN);
+        }
     }
     else if (IsKeyDown(KEY_RIGHT)) {
         player->position.x += PLAYER_HOR_SPD*delta;
         face_right = 1;
-        UpdatePlayerState(player, ANIM_ID_RUN);
+        if (player->canJump) {
+            UpdatePlayerState(player, ANIM_ID_RUN);
+        }
     }
     else {
         if (player->canJump) {
             UpdatePlayerState(player, ANIM_ID_IDLE);
         }
+
     }
 
     if (face_right)
@@ -434,6 +453,7 @@ Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, 
         player->speed = -PLAYER_JUMP_SPD;
 #ifdef LIMIT_SINGLE_JUMP
         player->canJump = false;
+        UpdatePlayerState(player, ANIM_ID_JUMP);
 #endif
     }
 
