@@ -391,8 +391,17 @@ Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, 
 {
     Texture2D * ret = NULL;
     static int face_right = 1;
+    static float log_timer = 0;
+    int log = 0;
+    static int log_cnt = 0;
 
-    //speed = delta * SPEED;
+    log_timer += delta;
+    if (log_timer >= .25) {
+        log = 1;
+        log_timer = 0;
+        log_cnt++;
+    }
+
     anim_timer += delta;
 
     // if the time has expired select the next frame
@@ -408,7 +417,7 @@ Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, 
                 case 2: anim_idx = 3; break;
                 case 3: anim_idx = 5; break;
                 case 5: anim_idx = 3; break;
-                default: break;
+                default: anim_idx = 0; break;
             }
         }
         else {
@@ -441,11 +450,6 @@ Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, 
 
     }
 
-    if (face_right)
-        ret = &anim_array[curr_anim].textures[anim_idx];
-    else
-        ret = &anim_array[curr_anim].flipped_textures[anim_idx];
-
     if ((IsKeyDown(KEY_SPACE) && player->canJump) ||
         (IsKeyDown(KEY_UP) && player->canJump))
 
@@ -458,6 +462,7 @@ Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, 
     }
 
     bool hitObstacle = false;
+    bool in_air = true;
     for (int i = 0; i < envItemsLength; i++)
     {
         EnvItem *ei = envItems + i;
@@ -465,13 +470,26 @@ Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, 
         if (ei->blocking &&
             ei->rect.x <= p->x &&
             ei->rect.x + ei->rect.width >= p->x &&
-            ei->rect.y >= p->y &&
-            ei->rect.y <= p->y + player->speed*delta)
+            (ei->rect.y) >= (p->y) &&
+            (ei->rect.y) <= (p->y) + player->speed*delta)
         {
             hitObstacle = true;
             player->speed = 0.0f;
             p->y = ei->rect.y;
+            in_air = false;
+            curr_anim = player->state;
             break;
+        }
+
+    }
+
+    if (in_air) {
+        if (log) printf("in air %d\n", log_cnt);
+
+        // if the girl is running we change the animation to jump as she is falling
+        if (player->state == ANIM_ID_RUN) {
+            curr_anim = ANIM_ID_JUMP;
+
         }
     }
 
@@ -484,6 +502,11 @@ Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, 
 #endif
     }
     else player->canJump = true;
+
+    if (face_right)
+        ret = &anim_array[curr_anim].textures[anim_idx];
+    else
+        ret = &anim_array[curr_anim].flipped_textures[anim_idx];
 
     return ret;
 }
