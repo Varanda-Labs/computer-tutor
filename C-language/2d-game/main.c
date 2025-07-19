@@ -73,6 +73,8 @@ typedef struct Player {
     Vector2 position;
     float speed;
     bool canJump;
+    int old_state;
+    int state;
 } Player;
 
 typedef struct EnvItem {
@@ -375,9 +377,20 @@ int main(void)
     return 0;
 }
 
+void UpdatePlayerState(Player *player, int state)
+{
+    if (player->state != state) {
+        anim_idx = 0;
+        curr_anim = state;
+    }
+    player->old_state = player->state;
+    player->state = state;
+}
+
 Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta)
 {
     Texture2D * ret = NULL;
+    static int face_right = 1;
 
     //speed = delta * SPEED;
     anim_timer += delta;
@@ -393,8 +406,27 @@ Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, 
     ret = &anim_array[curr_anim].textures[anim_idx];
 
 
-    if (IsKeyDown(KEY_LEFT)) player->position.x -= PLAYER_HOR_SPD*delta;
-    if (IsKeyDown(KEY_RIGHT)) player->position.x += PLAYER_HOR_SPD*delta;
+    if (IsKeyDown(KEY_LEFT)) {
+        player->position.x -= PLAYER_HOR_SPD*delta;
+        face_right = 0;
+        UpdatePlayerState(player, ANIM_ID_RUN);
+    }
+    else if (IsKeyDown(KEY_RIGHT)) {
+        player->position.x += PLAYER_HOR_SPD*delta;
+        face_right = 1;
+        UpdatePlayerState(player, ANIM_ID_RUN);
+    }
+    else {
+        if (player->canJump) {
+            UpdatePlayerState(player, ANIM_ID_IDLE);
+        }
+    }
+
+    if (face_right)
+        ret = &anim_array[curr_anim].textures[anim_idx];
+    else
+        ret = &anim_array[curr_anim].flipped_textures[anim_idx];
+
     if ((IsKeyDown(KEY_SPACE) && player->canJump) ||
         (IsKeyDown(KEY_UP) && player->canJump))
 
