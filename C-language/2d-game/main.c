@@ -51,6 +51,7 @@ Cactos-5 pos: 5593, 721  size: 112x110
 
 #include "raylib.h"
 #include "raymath.h"
+#include <stdio.h>
 
 #define LIMIT_SINGLE_JUMP
 
@@ -84,11 +85,99 @@ typedef struct EnvItem {
 //  Variables (file scope)
 //-----------------------------------------
 
+//------------------------ Girl Animation ---------------------------
+#define MENINA_DIR "./assets/girl/"
+#define GIRL_POS_OFFSET_X 8
+#define GIRL_POS_OFFSET_Y -60
+
+#define ANIM_ID_IDLE        0
+#define ANIM_ID_RUN         1
+#define ANIM_ID_JUMP        2
+#define ANIM_ID_SHOOT       3
+#define ANIM_ID_SLIDE       4
+#define ANIM_ID_DEAD        5
+#define ANIM_ID_MELEE       6
+
+
+typedef struct anim_st {
+    const int anim_id;
+    const char * name;
+    const char * filename_format;
+    const int num_frames;
+    float frame_period;
+    Texture2D  textures[10];
+    Texture2D  flipped_textures[10];
+} anim_t;
+
+static  anim_t anim_array[] = {
+    //--------------- idle ----------------
+    {
+        anim_id: ANIM_ID_IDLE,
+        name: "Idle",
+        filename_format: MENINA_DIR "Idle-%d.png",
+        num_frames: 10,
+        frame_period: 0.1f
+    },
+    //--------------- run ----------------
+    {
+        anim_id: ANIM_ID_RUN,
+        name: "Run",
+        filename_format: MENINA_DIR "Run-%d.png",
+        num_frames: 8,
+        frame_period: 0.1f
+    },
+    //--------------- jump ----------------
+    {
+        anim_id: ANIM_ID_JUMP,
+        name: "Jump",
+        filename_format: MENINA_DIR "Jump-%d.png",
+        num_frames: 10,
+        frame_period: 0.1f
+    },
+    //--------------- shoot ----------------
+    {
+        anim_id: ANIM_ID_SHOOT,
+        name: "Shoot",
+        filename_format: MENINA_DIR "Shoot-%d.png",
+        num_frames: 3,
+        frame_period: 0.1f
+    },
+    //--------------- slide ----------------
+    {
+        anim_id: ANIM_ID_SLIDE,
+        name: "Slide",
+        filename_format: MENINA_DIR "Slide-%d.png",
+        num_frames: 5,
+        frame_period: 0.1f
+    },
+    //--------------- dead ----------------
+    {
+        anim_id: ANIM_ID_DEAD,
+        name: "Dead",
+        filename_format: MENINA_DIR "Dead-%d.png",
+        num_frames: 10,
+        frame_period: 0.1f
+    },
+    //--------------- MeLee ----------------
+    {
+        anim_id: ANIM_ID_MELEE,
+        name: "MeLee",
+        filename_format: MENINA_DIR "Melee-%d.png",
+        num_frames: 7,
+        frame_period: 0.1f
+    },
+};
+
+anim_t * animation_info_ptr;
+#define NUM_ANIMATIONS  (sizeof(anim_array) / sizeof(anim_array[0]))
+
+static float anim_timer = 0.0;
+static int curr_anim = 0, anim_idx = 0;
 
 //----------------------------------------------------------------------------------
 // Module functions declaration
 //----------------------------------------------------------------------------------
-void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta);
+Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta);
 void UpdateCameraCenterMV          (Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraCenter            (Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
 void UpdateCameraCenterInsideMap   (Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height);
@@ -110,7 +199,27 @@ int main(void)
     const int screenWidth = (1280 / 4) * 3;
     const int screenHeight = (960 / 4) * 3;
 
+    int i;
+    char temp_text[256];
+
     InitWindow(screenWidth, screenHeight, "raylib [core] example - 2d camera");
+
+
+    //------------ load Girl textures -------------
+    for (anim_idx = 0; anim_idx < NUM_ANIMATIONS; anim_idx++)
+    {
+        for (i=0; i< anim_array[anim_idx].num_frames; i++)
+        {
+            snprintf(temp_text, sizeof(temp_text), anim_array[anim_idx].filename_format, i+1);
+            Image img = LoadImage(temp_text);
+            anim_array[anim_idx].textures[i] = LoadTextureFromImage(img);
+            ImageFlipHorizontal(&img);
+            anim_array[anim_idx].flipped_textures[i] = LoadTextureFromImage(img);
+            UnloadImage(img);
+        }
+    }
+
+    Texture2D * menina_texture_sample_ptr = &anim_array[0].textures[0];
 
     //---- load textures ----
     Image temp_image = LoadImage(STATIC_BACKGROUND_FILENAME);         // Loaded in CPU memory (RAM)
@@ -194,7 +303,7 @@ int main(void)
         //----------------------------------------------------------------------------------
         float deltaTime = GetFrameTime();
 
-        UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
+        Texture2D * CurrentGirlTexture = UpdatePlayer(&player, envItems, envItemsLength, deltaTime);
 
         camera.zoom += ((float)GetMouseWheelMove()*0.05f * deltaTime * DRAW_SPEED_FACTOR);
 
@@ -222,20 +331,22 @@ int main(void)
             BeginMode2D(camera);
 
                 //------------
-#if 1
                 DrawTexture(bg_texture, player.position.x - PLAYER_INITIAL_X - BACKGROUND_OFFSET, 0, WHITE);
                 DrawTexture(moving_bg_texture, moving_bg_texture_x - (BACKGROUND_OFFSET * 4), 0, WHITE);
                 DrawTexture(ground_texture, 0, 0, WHITE);
-#else
-                DrawTexture(bg_texture, screenWidth/2 - bg_texture.width/2, screenHeight/2 - bg_texture.height/2, WHITE);
-                DrawTexture(moving_bg_texture, screenWidth/2 - moving_bg_texture.width/2, screenHeight/2 - moving_bg_texture.height/2, WHITE);
-                DrawTexture(ground_texture, screenWidth/2 - ground_texture.width/2, screenHeight/2 - ground_texture.height/2, WHITE);
-#endif
 
                 //for (int i = 1; i < envItemsLength; i++) DrawRectangleRec(envItems[i].rect, envItems[i].color);
 
-                Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40.0f, 40.0f };
-                DrawRectangleRec(playerRect, RED);
+                // show fake character as a square
+//                Rectangle playerRect = { player.position.x - 20, player.position.y - 40, 40.0f, 40.0f };
+//                DrawRectangleRec(playerRect, RED);
+
+                //------ draw the girl ----
+                Rectangle menina_source = {0,0, menina_texture_sample_ptr->width, menina_texture_sample_ptr->height};
+                Rectangle menina_dest = {player.position.x + GIRL_POS_OFFSET_X, player.position.y + GIRL_POS_OFFSET_Y, menina_texture_sample_ptr->width/4, menina_texture_sample_ptr->height/4};
+                Vector2 menina_ori = {menina_texture_sample_ptr->width/8, menina_texture_sample_ptr->height/8};
+                DrawTexturePro(*CurrentGirlTexture, menina_source,  menina_dest, menina_ori, 0, WHITE);
+
 
                 DrawCircleV(player.position, 5.0f, GOLD);
 
@@ -264,8 +375,24 @@ int main(void)
     return 0;
 }
 
-void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta)
+Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta)
 {
+    Texture2D * ret = NULL;
+
+    //speed = delta * SPEED;
+    anim_timer += delta;
+
+    // if the time has expired select the next frame
+    // Se o timer espirou entao seleciona o proximo frame para ser exibido via incremento de anim_idx
+    if (anim_timer >= anim_array[curr_anim].frame_period) {
+        anim_timer = 0;
+        anim_idx++;
+        if (anim_idx >= anim_array[curr_anim].num_frames) // se ultimo frame seleciona o primeiro
+            anim_idx = 0;
+    }
+    ret = &anim_array[curr_anim].textures[anim_idx];
+
+
     if (IsKeyDown(KEY_LEFT)) player->position.x -= PLAYER_HOR_SPD*delta;
     if (IsKeyDown(KEY_RIGHT)) player->position.x += PLAYER_HOR_SPD*delta;
     if ((IsKeyDown(KEY_SPACE) && player->canJump) ||
@@ -305,6 +432,8 @@ void UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float d
 #endif
     }
     else player->canJump = true;
+
+    return ret;
 }
 
 void UpdateCameraCenterMV(Camera2D *camera, Player *player, EnvItem *envItems, int envItemsLength, float delta, int width, int height)
