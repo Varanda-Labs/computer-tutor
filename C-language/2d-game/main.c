@@ -204,7 +204,7 @@ int main(void)
     int i;
     char temp_text[256];
 
-    InitWindow(screenWidth, screenHeight, "raylib [core] example - 2d camera");
+    InitWindow(screenWidth, screenHeight, "Varanda Labs - Game demo (training)");
 
 
     //------------ load Girl textures -------------
@@ -320,6 +320,8 @@ int main(void)
 
         if (IsKeyPressed(KEY_C)) cameraOption = (cameraOption + 1)%cameraUpdatersLength;
 
+        if (IsKeyPressed(KEY_F)) ToggleFullscreen();
+
         // Call update camera function by its pointer
         cameraUpdaters[cameraOption](&camera, &player, envItems, envItemsLength, deltaTime, screenWidth, screenHeight);
         //----------------------------------------------------------------------------------
@@ -350,7 +352,7 @@ int main(void)
                 DrawTexturePro(*CurrentGirlTexture, menina_source,  menina_dest, menina_ori, 0, WHITE);
 
 
-                DrawCircleV(player.position, 5.0f, GOLD);
+                // DrawCircleV(player.position, 5.0f, GOLD);
 
                 moving_bg_texture_x = player.position.x / 2;
 
@@ -359,11 +361,12 @@ int main(void)
 
             DrawText("Controls:", 20, 20, 10, BLACK);
             DrawText("- Right/Left to move", 40, 40, 10, DARKGRAY);
-            DrawText("- Space to jump", 40, 60, 10, DARKGRAY);
+            DrawText("- Space or up to jump", 40, 60, 10, DARKGRAY);
             DrawText("- Mouse Wheel to Zoom in-out, R to reset zoom", 40, 80, 10, DARKGRAY);
             DrawText("- C to change camera mode", 40, 100, 10, DARKGRAY);
-            DrawText("Current camera mode:", 20, 120, 10, BLACK);
-            DrawText(cameraDescriptions[cameraOption], 40, 140, 10, DARKGRAY);
+            DrawText("- F to FullScreen mode", 40, 120, 10, BLACK);
+            DrawText("Current camera mode:", 20, 140, 10, BLACK);
+            DrawText(cameraDescriptions[cameraOption], 40, 160, 10, DARKGRAY);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
@@ -387,10 +390,14 @@ void UpdatePlayerState(Player *player, int state)
     player->state = state;
 }
 
+//#define LOG_PLAYER_ENABLED
+
 Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, float delta)
 {
     Texture2D * ret = NULL;
     static int face_right = 1;
+
+#ifdef LOG_PLAYER_ENABLED
     static float log_timer = 0;
     int log = 0;
     static int log_cnt = 0;
@@ -401,6 +408,7 @@ Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, 
         log_timer = 0;
         log_cnt++;
     }
+#endif
 
     anim_timer += delta;
 
@@ -484,7 +492,9 @@ Texture2D * UpdatePlayer(Player *player, EnvItem *envItems, int envItemsLength, 
     }
 
     if (in_air) {
+#ifdef LOG_PLAYER_ENABLED
         if (log) printf("in air %d\n", log_cnt);
+#endif
 
         // if the girl is running we change the animation to jump as she is falling
         if (player->state == ANIM_ID_RUN) {
