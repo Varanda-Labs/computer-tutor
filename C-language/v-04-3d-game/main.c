@@ -22,8 +22,9 @@
 
 // #define MODEL_FILE_NAME "resources/models/gltf/robot.glb"
 // #define MODEL_FILE_NAME "./robot.glb"
-#define MODEL_FILE_NAME  "fence_light_on_mesh.glb"
+//#define MODEL_FILE_NAME  "fence_light_on_mesh.glb"
 // #define MODEL_FILE_NAME  "fence_mesh.glb"
+#define MODEL_FILE_NAME  "suzi.m3d"
 
 // #define MODEL_FILE_NAME  "fence_light_on_mesh.obj"
 

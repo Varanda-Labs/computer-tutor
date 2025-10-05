@@ -1,0 +1,2 @@
+g++ -g -O0 test-01.cpp ../glad/src/glad.c -lGL -lglfw -lX11 -lXrandr -lXext -lm -lstdc++ -I ../glad/include  -o test
+
