@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+
+set -e
+
+gcc -g -O0 main.c -I ../raylib/src -L ../libs/linux -s -lraylib -l m -o game
+
+./game
+
