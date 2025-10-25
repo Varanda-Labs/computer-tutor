@@ -6,8 +6,13 @@ from tools import *
 
 
 # Initialization
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 800 #450
+# SCREEN_WIDTH = 800
+# SCREEN_HEIGHT = 800 #450
+SCREEN_WIDTH = int ((1280 / 4) * 3)
+SCREEN_HEIGHT = int ((960 / 4) * 3)
+
+PLAYER_INITIAL_X = 400
+PLAYER_INITIAL_Y = 830
 
 MAX_FRAME_SPEED = 15
 MIN_FRAME_SPEED = 1
@@ -25,8 +30,30 @@ GIRL_POS_OFFSET_X = 8
 GIRL_POS_OFFSET_Y = -60
 
 anim_timer = 0.0
-curr_anim = ANIM_ID_JUMP #ANIM_ID_RUN
+curr_anim = ANIM_ID_RUN
 anim_idx = 0
+
+class Player:
+  def __init__(self, position):
+    self.position = position  # Vector2 position
+  position = None
+  speed = 0              # float speed
+  canJump = False        # bool canJump
+  state = 0              # int
+  old_state = 0          #int
+  
+  envItems = [
+    Rectangle(293, 833, 1792, 128),
+    Rectangle(892, 627, 385, 96),
+    Rectangle(1324, 497, 515, 96),
+    Rectangle(2342, 829,  764, 130),
+    Rectangle(3108, 577,  643, 383),
+    Rectangle(4003, 431,  512, 96 ),
+    Rectangle(4774, 831,  1627, 130),
+    Rectangle(2801, 671, 257, 96)
+  ]
+
+player = Player(Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
 
 anim_array = (
   #--------------- idle ----------------
@@ -213,11 +240,19 @@ def game():
           draw_rectangle_lines(250 + 21*i, 205, 20, 20, MAROON)
       #draw sprite sheet texture
       txt = animate_girl(False, True)
-      draw_texture(txt, 15, 40, WHITE)
+      #draw_texture(txt, 15, 40, WHITE)
+
+      menina_source = Rectangle(0,0, txt.width, txt.height)
+      #menina_dest = Rectangle(player.position.x + GIRL_POS_OFFSET_X, player.position.y + GIRL_POS_OFFSET_Y, menina_texture_sample_ptr->width/4, menina_texture_sample_ptr->height/4};
+      menina_dest = Rectangle(150, 200, txt.width/4, txt.height/4)
+
+      menina_ori = Vector2(txt.width/8, txt.height/8)
+      draw_texture_pro(txt, menina_source,  menina_dest, menina_ori, 0, WHITE)
+
 
       #draw_texture(scarfy, 15, 40, WHITE)
       #draw sprite animation
-      draw_texture_rec(scarfy, frameRec, position,WHITE)
+      #draw_texture_rec(scarfy, frameRec, position,WHITE)
 
       draw_text("(c) Scarfy sprite by Eiden Marsal", SCREEN_WIDTH - 200, SCREEN_HEIGHT - 20, 10, GRAY)
 
