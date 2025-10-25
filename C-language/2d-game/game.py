@@ -55,77 +55,39 @@ class Player:
 
 player = Player(Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
 
+class AnimInfo:
+  def __init__(self, id, name, filename, num_frames, frame_period = 0.1):
+    self.anim_id = id
+    self.name = name
+    self.filename_format = filename
+    self.num_frames = num_frames
+    self.textures = []
+    self.flipped_textures = []
+    self.frame_period = frame_period
+
+
 anim_array = (
   #--------------- idle ----------------
-  {
-    "anim_id": ANIM_ID_IDLE,
-    "name": "Idle",
-    "filename_format": MENINA_DIR + "Idle-XX.png",
-    "num_frames": 10,
-    "frame_period": 0.1,
-    "textures": [],
-    "flipped_textures": []
-  },
+  AnimInfo(ANIM_ID_IDLE, "Idle", MENINA_DIR + "Idle-XX.png", 10),
+
   #--------------- run ----------------
-  {
-    "anim_id": ANIM_ID_RUN,
-    "name": "Run",
-    "filename_format": MENINA_DIR + "Run-XX.png",
-    "num_frames": 8,
-    "frame_period": .15,
-    "textures": [],
-    "flipped_textures": []
-  },
+  AnimInfo(ANIM_ID_RUN, "Run", MENINA_DIR + "Run-XX.png", 8, 0.15),
+
   #--------------- jump ----------------
-  {
-    "anim_id": ANIM_ID_JUMP,
-    "name": "Jump",
-    "filename_format": MENINA_DIR + "Jump-XX.png",
-    "num_frames": 10,
-    "frame_period": 0.1,
-    "textures": [],
-    "flipped_textures": []
-  },
+  AnimInfo(ANIM_ID_JUMP, "Jump", MENINA_DIR + "Jump-XX.png", 10),
+
   #--------------- shoot ----------------
-  {
-    "anim_id": ANIM_ID_SHOOT,
-    "name": "Shoot",
-    "filename_format": MENINA_DIR + "Shoot-XX.png",
-    "num_frames": 3,
-    "frame_period": 0.1,
-    "textures": [],
-    "flipped_textures": []
-  },
+  AnimInfo(ANIM_ID_SHOOT, "Shoot", MENINA_DIR +"Shoot-XX.png", 3),
+
   #--------------- slide ----------------
-  {
-    "anim_id": ANIM_ID_SLIDE,
-    "name": "Slide",
-    "filename_format": MENINA_DIR + "Slide-XX.png",
-    "num_frames": 5,
-    "frame_period": 0.1,
-    "textures": [],
-    "flipped_textures": []
-  },
+  AnimInfo(ANIM_ID_SLIDE, "Slide", MENINA_DIR + "Slide-XX.png", 5),
+
   #--------------- dead ----------------
-  {
-    "anim_id": ANIM_ID_DEAD,
-    "name": "Dead",
-    "filename_format": MENINA_DIR + "Dead-XX.png",
-    "num_frames": 10,
-    "frame_period": 0.1,
-    "textures": [],
-    "flipped_textures": []
-  },
+  AnimInfo(ANIM_ID_DEAD, "Dead", MENINA_DIR + "Dead-XX.png", 10),
+
   #--------------- MeLee ----------------
-  {
-    "anim_id": ANIM_ID_MELEE,
-    "name": "MeLee",
-    "filename_format": MENINA_DIR + "Melee-XX.png",
-    "num_frames": 7,
-    "frame_period": 0.1,
-    "textures": [],
-    "flipped_textures": []
-  }
+  AnimInfo(ANIM_ID_MELEE, "MeLee", MENINA_DIR + "Melee-XX.png", 7),
+
 )
 
 def animate_girl(canJump, face_right):
@@ -137,8 +99,9 @@ def animate_girl(canJump, face_right):
 
   #  if the time has expired select the next frame
   #  Se o timer espirou entao seleciona o proximo frame para ser exibido via incremento de anim_idx
-  if anim_timer >= anim_array[curr_anim]["frame_period"]:
+  if anim_timer >= anim_array[curr_anim].frame_period:
     anim_timer = 0
+    print("curr_anim = " + anim_array[curr_anim].name)
     if canJump == 0:
       # for jump we have a special sequence: 1,2,3 and loop 4 and 6 (indexes: 0,1,2 and loop 3 and 5):
       if anim_idx == 0: 
@@ -157,13 +120,13 @@ def animate_girl(canJump, face_right):
     else:
       anim_idx = anim_idx + 1
 
-    if anim_idx >= anim_array[curr_anim]["num_frames"]: # se ultimo frame seleciona o primeiro
+    if anim_idx >= anim_array[curr_anim].num_frames: # se ultimo frame seleciona o primeiro
       anim_idx = 0
   
   if face_right == True:
-    ret = anim_array[curr_anim]["textures"][anim_idx]
+    ret = anim_array[curr_anim].textures[anim_idx]
   else:
-    ret = anim_array[curr_anim]["flipped_textures"][anim_idx]
+    ret = anim_array[curr_anim].flipped_textures[anim_idx]
     
   return ret
 
@@ -171,16 +134,16 @@ def animate_girl(canJump, face_right):
 
 def load_girl_textures():
   for anim in anim_array:
-    num_frames = anim["num_frames"]
+    num_frames = anim.num_frames
     for i in range(num_frames):
-      temp_text = anim["filename_format"].replace("XX", str(i+1))
+      temp_text = anim.filename_format.replace("XX", str(i+1))
       print("texture: " + temp_text)
       img= load_image(temp_text)
       txt = load_texture_from_image(img)
       image_flip_horizontal(img)
       txt_flip = load_texture_from_image(img)
-      anim["textures"].append(txt)
-      anim["flipped_textures"].append(txt_flip)
+      anim.textures.append(txt)
+      anim.flipped_textures.append(txt_flip)
 
 def game():
   currentFrame = 0
