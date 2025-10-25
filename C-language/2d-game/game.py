@@ -7,7 +7,7 @@ from tools import *
 
 # Initialization
 SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 450
+SCREEN_HEIGHT = 800 #450
 
 MAX_FRAME_SPEED = 15
 MIN_FRAME_SPEED = 1
@@ -23,6 +23,10 @@ ANIM_ID_MELEE  =    6
 MENINA_DIR = "./assets/girl/"
 GIRL_POS_OFFSET_X = 8
 GIRL_POS_OFFSET_Y = -60
+
+anim_timer = 0.0
+curr_anim = ANIM_ID_JUMP #ANIM_ID_RUN
+anim_idx = 0
 
 anim_array = (
   #--------------- idle ----------------
@@ -41,7 +45,7 @@ anim_array = (
     "name": "Run",
     "filename_format": MENINA_DIR + "Run-XX.png",
     "num_frames": 8,
-    "frame_period": 0.1,
+    "frame_period": .15,
     "textures": [],
     "flipped_textures": []
   },
@@ -96,6 +100,47 @@ anim_array = (
     "flipped_textures": []
   }
 )
+
+def animate_girl(canJump, face_right):
+  global anim_timer
+  global curr_anim
+  global anim_idx
+  delta = get_frame_time()
+  anim_timer += delta
+
+  #  if the time has expired select the next frame
+  #  Se o timer espirou entao seleciona o proximo frame para ser exibido via incremento de anim_idx
+  if anim_timer >= anim_array[curr_anim]["frame_period"]:
+    anim_timer = 0
+    if canJump == 0:
+      # for jump we have a special sequence: 1,2,3 and loop 4 and 6 (indexes: 0,1,2 and loop 3 and 5):
+      if anim_idx == 0: 
+        anim_idx = 1
+      elif anim_idx == 1:
+        anim_idx = 2
+      elif anim_idx == 2:
+        anim_idx = 3
+      elif anim_idx == 3:
+        anim_idx = 5
+      elif anim_idx == 5: 
+        anim_idx = 3
+      else:
+        anim_idx = 0
+
+    else:
+      anim_idx = anim_idx + 1
+
+    if anim_idx >= anim_array[curr_anim]["num_frames"]: # se ultimo frame seleciona o primeiro
+      anim_idx = 0
+  
+  if face_right == True:
+    ret = anim_array[curr_anim]["textures"][anim_idx]
+  else:
+    ret = anim_array[curr_anim]["flipped_textures"][anim_idx]
+    
+  return ret
+
+
 
 def load_girl_textures():
   for anim in anim_array:
@@ -167,7 +212,10 @@ def game():
               draw_rectangle(250 + 21*i, 205, 20, 20, RED)
           draw_rectangle_lines(250 + 21*i, 205, 20, 20, MAROON)
       #draw sprite sheet texture
-      draw_texture(scarfy, 15, 40, WHITE)
+      txt = animate_girl(False, True)
+      draw_texture(txt, 15, 40, WHITE)
+
+      #draw_texture(scarfy, 15, 40, WHITE)
       #draw sprite animation
       draw_texture_rec(scarfy, frameRec, position,WHITE)
 
