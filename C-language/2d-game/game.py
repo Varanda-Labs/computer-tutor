@@ -1,13 +1,11 @@
-# Tested with version: 5.5.0.2
-# by @Lightnet
+# Girl Animation
+# 
 
 from pyray import *
 from tools import *
 
 
 # Initialization
-# SCREEN_WIDTH = 800
-# SCREEN_HEIGHT = 800 #450
 SCREEN_WIDTH = int ((1280 / 4) * 3)
 SCREEN_HEIGHT = int ((960 / 4) * 3)
 
@@ -29,9 +27,11 @@ MENINA_DIR = "./assets/girl/"
 GIRL_POS_OFFSET_X = 8
 GIRL_POS_OFFSET_Y = -60
 
+# Globals
 anim_timer = 0.0
 curr_anim = ANIM_ID_RUN
 anim_idx = 0
+camera = None
 
 class Player:
   def __init__(self, position):
@@ -130,7 +130,11 @@ def animate_girl(canJump, face_right):
     
   return ret
 
-
+def UpdateCameraCenterMV():
+  global camera
+  camera.offset = Vector2(SCREEN_WIDTH/2.0, SCREEN_HEIGHT - 120)
+  pos = Vector2(player.position.x, PLAYER_INITIAL_Y)
+  camera.target = pos
 
 def load_girl_textures():
   for anim in anim_array:
@@ -146,6 +150,7 @@ def load_girl_textures():
       anim.flipped_textures.append(txt_flip)
 
 def game():
+  global camera
   currentFrame = 0
   framesCounter = 0
   framesSpeed = 8
@@ -157,72 +162,41 @@ def game():
 
   load_girl_textures()
 
-  scarfy = load_texture("/home/mvaranda/lixo/pyraylib-tests/raylib-python-cffi/examples/textures/resources/scarfy.png")  # Texture loading
+  camera = Camera2D()
+  camera.target = player.position
+  camera.offset = Vector2( SCREEN_WIDTH/2.0, SCREEN_HEIGHT/2.0)
+  camera.rotation = 0.0
+  camera.zoom = 1.0
 
-  frameRec = Rectangle(0.0, 0.0, scarfy.width/6, scarfy.height)
-
-  position = Vector2(350.0, 280.0)
+  UpdateCameraCenterMV()
+  #position = Vector2(350.0, 280.0)
 
   # Main game loop
   while not window_should_close():  # Detect window close button or ESC key
 
-      framesCounter += 1
-
-      if framesCounter >= 60/framesSpeed:
-          framesCounter = 0
-          currentFrame += 1
-          if currentFrame > 5:
-              currentFrame = 0
-
-          frameRec.x = float(currentFrame) * float(scarfy.width/6)
-      # Control speed animation
-      if (is_key_pressed(KeyboardKey.KEY_RIGHT)):
-          framesSpeed += 1
-      elif is_key_pressed(KeyboardKey.KEY_LEFT):
-          framesSpeed -= 1
-
-      if framesSpeed > MAX_FRAME_SPEED:
-          framesSpeed = MAX_FRAME_SPEED
-      elif framesSpeed < MIN_FRAME_SPEED:
-          framesSpeed = MIN_FRAME_SPEED
-
       begin_drawing()
 
       clear_background(RAYWHITE)
-      #draw sheet block
-      draw_rectangle_lines(15, 40, scarfy.width, scarfy.height, LIME)
-      #draw current frame render
-      draw_rectangle_lines(15 + int(frameRec.x), 40 + int(frameRec.y), int(frameRec.width), int(frameRec.height), RED)
-      draw_text("FRAME SPEED: ", 165, 210, 10, DARKGRAY)
-      draw_text(f" FPS {framesSpeed}", 575, 210, 10, DARKGRAY) #format string
-      draw_text("PRESS RIGHT/LEFT KEYS to CHANGE SPEED!", 290, 240, 10, DARKGRAY)
-      #display bar framesSpeed cap
-      for i in range(MAX_FRAME_SPEED):
-          if i < framesSpeed:
-              draw_rectangle(250 + 21*i, 205, 20, 20, RED)
-          draw_rectangle_lines(250 + 21*i, 205, 20, 20, MAROON)
+
+      begin_mode_2d(camera)
+      
       #draw sprite sheet texture
-      txt = animate_girl(False, True)
-      #draw_texture(txt, 15, 40, WHITE)
+      girl_texture = animate_girl(False, True)
 
-      menina_source = Rectangle(0,0, txt.width, txt.height)
-      #menina_dest = Rectangle(player.position.x + GIRL_POS_OFFSET_X, player.position.y + GIRL_POS_OFFSET_Y, menina_texture_sample_ptr->width/4, menina_texture_sample_ptr->height/4};
-      menina_dest = Rectangle(150, 200, txt.width/4, txt.height/4)
+      menina_source = Rectangle(0,0, girl_texture.width, girl_texture.height)
+      menina_dest = Rectangle( player.position.x + GIRL_POS_OFFSET_X, 
+        player.position.y + GIRL_POS_OFFSET_Y, 
+        girl_texture.width/4, girl_texture.height/4)
 
-      menina_ori = Vector2(txt.width/8, txt.height/8)
-      draw_texture_pro(txt, menina_source,  menina_dest, menina_ori, 0, WHITE)
+      menina_ori = Vector2(girl_texture.width/8, girl_texture.height/8)
+      draw_texture_pro(girl_texture, menina_source,  menina_dest, menina_ori, 0, WHITE)
 
-
-      #draw_texture(scarfy, 15, 40, WHITE)
-      #draw sprite animation
-      #draw_texture_rec(scarfy, frameRec, position,WHITE)
-
-      draw_text("(c) Scarfy sprite by Eiden Marsal", SCREEN_WIDTH - 200, SCREEN_HEIGHT - 20, 10, GRAY)
+      end_mode_2d()
 
       end_drawing()
 
   # De-Initialization
-  unload_texture(scarfy)
+  unload_texture(girl_texture)
 
   close_window()  # Close window and OpenGL context
 
