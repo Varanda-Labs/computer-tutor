@@ -34,12 +34,12 @@ GIRL_POS_OFFSET_Y = -60
 class Node(MiniGNode):
   def __init__(self, name):
     super().__init__(name)
-  def init(self):
+  def on_init(self):
     print("init: " + self.name)
-  def run_slice(self, timestamp):
-    print("run_slice: " + self.name)
-  def process_message(self, msg, timestamp):
-    print("process_message " + self.name)
+  def on_slice(self, timestamp):
+    print("on_slice: " + self.name)
+  def on_message(self, msg, timestamp):
+    print("on_message " + self.name)
     print("message: " + msg[0])
 
 def test():
@@ -103,18 +103,17 @@ anim_array = (
 
   #--------------- MeLee ----------------
   AnimInfo(ANIM_ID_MELEE, "MeLee", MENINA_DIR + "Melee-XX.png", 7),
-
 )
 
 class GameNode(MiniGNode):
   def __init__(self, name):
     super().__init__(name)
     self.anim_timer = 0
-    self.curr_anim = 0
+    self.curr_anim = ANIM_ID_RUN
     self.anim_idx = 0
 
-  def process_message(self, msg, timestamp):
-    print("process_message " + self.name)
+  def on_message(self, msg, timestamp):
+    print("on_message " + self.name)
     print("message: " + msg[0])
 
   def animate_girl(self, canJump, face_right):
@@ -125,7 +124,6 @@ class GameNode(MiniGNode):
     #  Se o timer espirou entao seleciona o proximo frame para ser exibido via incremento de self.anim_idx
     if self.anim_timer >= anim_array[self.curr_anim].frame_period:
       self.anim_timer = 0
-      print("self.curr_anim = " + anim_array[self.curr_anim].name)
       if canJump == 0:
         # for jump we have a special sequence: 1,2,3 and loop 4 and 6 (indexes: 0,1,2 and loop 3 and 5):
         if self.anim_idx == 0: 
@@ -172,7 +170,7 @@ class GameNode(MiniGNode):
         anim.textures.append(txt)
         anim.flipped_textures.append(txt_flip)
 
-  def init(self):
+  def on_init(self):
     currentFrame = 0
     framesCounter = 0
     framesSpeed = 8
@@ -190,40 +188,28 @@ class GameNode(MiniGNode):
     self.camera.rotation = 0.0
     self.camera.zoom = 1.0
 
+    minipyge_set_2d(self.camera)
+
     self.UpdateCameraCenterMV()
-    #position = Vector2(350.0, 280.0)
 
-  def run_slice(self, timestamp):
-    # Main game loop
-    while not window_should_close():  # Detect window close button or ESC key
+  def on_draw_canvas(self, timestamp):
+    clear_background(RAYWHITE)
+    draw_text("Controls:", 20, 20, 10, BLACK)
 
-        begin_drawing()
+  def on_draw_2d(self, timestamp):
+    girl_texture = self.animate_girl(False, True)
 
-        clear_background(RAYWHITE)
+    menina_source = Rectangle(0,0, girl_texture.width, girl_texture.height)
+    menina_dest = Rectangle( player.position.x + GIRL_POS_OFFSET_X, 
+      player.position.y + GIRL_POS_OFFSET_Y, 
+      girl_texture.width/4, girl_texture.height/4)
 
-        begin_mode_2d(self.camera)
-        
-        #draw sprite sheet texture
-        girl_texture = self.animate_girl(False, True)
+    menina_ori = Vector2(girl_texture.width/8, girl_texture.height/8)
+    draw_texture_pro(girl_texture, menina_source,  menina_dest, menina_ori, 0, WHITE)
 
-        menina_source = Rectangle(0,0, girl_texture.width, girl_texture.height)
-        menina_dest = Rectangle( player.position.x + GIRL_POS_OFFSET_X, 
-          player.position.y + GIRL_POS_OFFSET_Y, 
-          girl_texture.width/4, girl_texture.height/4)
-
-        menina_ori = Vector2(girl_texture.width/8, girl_texture.height/8)
-        draw_texture_pro(girl_texture, menina_source,  menina_dest, menina_ori, 0, WHITE)
-
-        end_mode_2d()
-
-        end_drawing()
-
-    # De-Initialization
-    #unload_texture(girl_texture)
-
-  #close_window()  # Close window and OpenGL context
+  def on_destroy(self):
+    close_window()
 
 if __name__ == "__main__":
-  #game()
   game = GameNode("Main-node")
   minipyge_run()
