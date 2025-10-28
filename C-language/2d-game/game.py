@@ -15,6 +15,14 @@ SCREEN_HEIGHT = int ((960 / 4) * 3)
 PLAYER_INITIAL_X = 400
 PLAYER_INITIAL_Y = 830
 
+G = 400
+PLAYER_JUMP_SPD = 420.0 
+PLAYER_HOR_SPD = 200.0
+
+BACKGROUND_OFFSET = 80
+
+DRAW_SPEED_FACTOR = 200.0
+
 MAX_FRAME_SPEED = 15
 MIN_FRAME_SPEED = 1
 
@@ -30,6 +38,9 @@ MENINA_DIR = "./assets/girl/"
 GIRL_POS_OFFSET_X = 8
 GIRL_POS_OFFSET_Y = -60
 
+STATIC_BACKGROUND_FILENAME = "assets/background-1280x960.png"
+MOVING_BACKGROUND_FILENAME = "assets/bk-move-6400x960.png"
+GROUND_FILENAME = "assets/ground-01.png"
 
 class Node(MiniGNode):
   def __init__(self, name):
@@ -48,15 +59,75 @@ def test():
   node_b.send_message(node_a, "This was a message sent from node B")
   minipyge_run()
 
+class Scene(MiniGNode):
+  def __init__(self, name):
+    super().__init__(name)
+    self.bg_texture = None
+    self.moving_bg_texture = None
+    self.ground_texture = None
+  
+  def on_init(self):
+    temp_image = load_image(STATIC_BACKGROUND_FILENAME)   # Loaded in CPU memory (RAM)
+    self.bg_texture = load_texture_from_image(temp_image);          # Image converted to texture, GPU memory (VRAM)
+    unload_image(temp_image);   # Once image has been converted to texture and uploaded to VRAM, it can be unloaded from RAM
 
-class Player:
-  def __init__(self, position):
+    temp_image = load_image(MOVING_BACKGROUND_FILENAME)
+    self.moving_bg_texture = load_texture_from_image(temp_image)
+    unload_image(temp_image)
+
+    temp_image = load_image(GROUND_FILENAME)
+    self.ground_texture = load_texture_from_image(temp_image)
+    unload_image(temp_image)
+
+  def on_draw_2d(self, timestamp):
+    #draw_texture(self.bg_texture, player.position.x - PLAYER_INITIAL_X - BACKGROUND_OFFSET, 0, WHITE);
+    #draw_texture(self.moving_bg_texture, moving_bg_texture_x - (BACKGROUND_OFFSET * 4), 0, WHITE);
+    draw_texture(self.ground_texture, 0, 0, WHITE)
+
+class Player(MiniGNode):
+  def __init__(self, name, position):
+    super().__init__(name)
     self.position = position  # Vector2 position
-  position = None
-  speed = 0              # float speed
-  canJump = False        # bool canJump
-  state = 0              # int
-  old_state = 0          #int
+    self.speed = 0              # float speed
+    self.canJump = False        # bool canJump
+    self.state = 0              # int
+    self.old_state = 0          #int
+
+  def UpdatePlayerState(state):
+    if self.state != state:
+      anim_idx = 0
+      curr_anim = state
+    self.old_state = self.state
+    self.state = state
+
+  def on_slice(self, timestamp):
+    delta = timestamp
+
+    if is_key_down(KEY_LEFT) == True:
+      self.position.x -= PLAYER_HOR_SPD * delta
+      face_right = 0
+      if self.canJump == True:
+        UpdatePlayerState(ANIM_ID_RUN)
+
+    elif is_key_down(KEY_RIGHT) == True:
+      self.position.x += PLAYER_HOR_SPD * delta
+      face_right = 1
+      if self.canJump == True:
+        UpdatePlayerState(ANIM_ID_RUN)
+
+    else:
+      if self.canJump == True:
+        UpdatePlayerState(ANIM_ID_IDLE)
+
+    if (((is_key_down(KEY_SPACE) == True) and (self.canJump == True)) or
+        ((is_key_down(KEY_UP) == True) and (self.canJump == True))):
+      self.speed = -PLAYER_JUMP_SPD
+#ifdef LIMIT_SINGLE_JUMP
+      self.canJump = false
+      UpdatePlayerState(ANIM_ID_JUMP)
+#endif
+
+
   
   envItems = [
     Rectangle(293, 833, 1792, 128),
@@ -69,7 +140,6 @@ class Player:
     Rectangle(2801, 671, 257, 96)
   ]
 
-player = Player(Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
 
 class AnimInfo:
   def __init__(self, id, name, filename, num_frames, frame_period = 0.1):
@@ -111,6 +181,8 @@ class GameNode(MiniGNode):
     self.anim_timer = 0
     self.curr_anim = ANIM_ID_RUN
     self.anim_idx = 0
+    self.scene = Scene("scene")
+    self.player = Player("player", Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
 
   def on_message(self, msg, timestamp):
     print("on_message " + self.name)
@@ -154,7 +226,7 @@ class GameNode(MiniGNode):
 
   def UpdateCameraCenterMV(self):
     self.camera.offset = Vector2(SCREEN_WIDTH/2.0, SCREEN_HEIGHT - 120)
-    pos = Vector2(player.position.x, PLAYER_INITIAL_Y)
+    pos = Vector2(self.player.position.x, PLAYER_INITIAL_Y)
     self.camera.target = pos
 
   def load_girl_textures(self):
@@ -175,6 +247,8 @@ class GameNode(MiniGNode):
     framesCounter = 0
     framesSpeed = 8
 
+    
+
     init_window(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib [texture] example - sprite anim")
 
     #need to set in case of animation snyc
@@ -183,7 +257,7 @@ class GameNode(MiniGNode):
     self.load_girl_textures()
 
     self.camera = Camera2D()
-    self.camera.target = player.position
+    self.camera.target = self.player.position
     self.camera.offset = Vector2( SCREEN_WIDTH/2.0, SCREEN_HEIGHT/2.0)
     self.camera.rotation = 0.0
     self.camera.zoom = 1.0
@@ -200,8 +274,8 @@ class GameNode(MiniGNode):
     girl_texture = self.animate_girl(False, True)
 
     menina_source = Rectangle(0,0, girl_texture.width, girl_texture.height)
-    menina_dest = Rectangle( player.position.x + GIRL_POS_OFFSET_X, 
-      player.position.y + GIRL_POS_OFFSET_Y, 
+    menina_dest = Rectangle( self.player.position.x + GIRL_POS_OFFSET_X, 
+      self.player.position.y + GIRL_POS_OFFSET_Y, 
       girl_texture.width/4, girl_texture.height/4)
 
     menina_ori = Vector2(girl_texture.width/8, girl_texture.height/8)
