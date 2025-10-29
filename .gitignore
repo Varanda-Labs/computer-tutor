@@ -8,6 +8,7 @@
 *.layout
 videos
 *.exe
+.vscode
 
 # User-specific files
 *.rsuser

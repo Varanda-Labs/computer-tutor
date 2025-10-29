@@ -98,6 +98,22 @@ class Player(MiniGNode):
     self.state = 0              # int
     self.old_state = 0          #int
     self.game_node = None
+    self.anim_timer = 0
+    self.curr_anim = ANIM_ID_RUN
+    self.anim_idx = 0
+
+  def load_girl_textures(self):
+    for anim in anim_array:
+      num_frames = anim.num_frames
+      for i in range(num_frames):
+        temp_text = anim.filename_format.replace("XX", str(i+1))
+        print("texture: " + temp_text)
+        img= load_image(temp_text)
+        txt = load_texture_from_image(img)
+        image_flip_horizontal(img)
+        txt_flip = load_texture_from_image(img)
+        anim.textures.append(txt)
+        anim.flipped_textures.append(txt_flip)
 
   def setGameNode(self, game_node):
     self.game_node = game_node
@@ -108,6 +124,9 @@ class Player(MiniGNode):
       curr_anim = state
     self.old_state = self.state
     self.state = state
+
+  def on_init(self):
+    self.load_girl_textures()
 
   def on_slice(self, timestamp):
     delta = timestamp
@@ -137,7 +156,41 @@ class Player(MiniGNode):
 #endif
     self.send_message(self.game_node, self.position, self) 
 
+  def animate_girl(self, canJump, face_right):
+    delta = get_frame_time()
+    self.anim_timer += delta
 
+    #  if the time has expired select the next frame
+    #  Se o timer espirou entao seleciona o proximo frame para ser exibido via incremento de self.anim_idx
+    if self.anim_timer >= anim_array[self.curr_anim].frame_period:
+      self.anim_timer = 0
+      if canJump == 0:
+        # for jump we have a special sequence: 1,2,3 and loop 4 and 6 (indexes: 0,1,2 and loop 3 and 5):
+        if self.anim_idx == 0: 
+          self.anim_idx = 1
+        elif self.anim_idx == 1:
+          self.anim_idx = 2
+        elif self.anim_idx == 2:
+          self.anim_idx = 3
+        elif self.anim_idx == 3:
+          self.anim_idx = 5
+        elif self.anim_idx == 5: 
+          self.anim_idx = 3
+        else:
+          self.anim_idx = 0
+
+      else:
+        self.anim_idx = self.anim_idx + 1
+
+      if self.anim_idx >= anim_array[self.curr_anim].num_frames: # se ultimo frame seleciona o primeiro
+        self.anim_idx = 0
+    
+    if face_right == True:
+      ret = anim_array[self.curr_anim].textures[self.anim_idx]
+    else:
+      ret = anim_array[self.curr_anim].flipped_textures[self.anim_idx]
+      
+    return ret
   
   envItems = [
     Rectangle(293, 833, 1792, 128),
@@ -150,6 +203,16 @@ class Player(MiniGNode):
     Rectangle(2801, 671, 257, 96)
   ]
 
+  def on_draw_2d(self, timestamp):
+    girl_texture = self.animate_girl(False, True)
+
+    menina_source = Rectangle(0,0, girl_texture.width, girl_texture.height)
+    menina_dest = Rectangle( self.position.x + GIRL_POS_OFFSET_X, 
+      self.position.y + GIRL_POS_OFFSET_Y, 
+      girl_texture.width/4, girl_texture.height/4)
+
+    menina_ori = Vector2(girl_texture.width/8, girl_texture.height/8)
+    draw_texture_pro(girl_texture, menina_source,  menina_dest, menina_ori, 0, WHITE)
 
 class AnimInfo:
   def __init__(self, id, name, filename, num_frames, frame_period = 0.1):
@@ -188,11 +251,8 @@ anim_array = (
 class GameNode(MiniGNode):
   def __init__(self, name):
     super().__init__(name)
-    self.anim_timer = 0
-    self.curr_anim = ANIM_ID_RUN
-    self.anim_idx = 0
-    self.player = Player("player", Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
     self.scene = Scene("scene")
+    self.player = Player("player", Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
     self.scene.set_player_position(self.player.position)
     self.player.setGameNode(self)
     self.player_position = None # received via message
@@ -202,59 +262,10 @@ class GameNode(MiniGNode):
     self.player_position = msg[0]
     self.scene.set_player_position(msg[0])
 
-  def animate_girl(self, canJump, face_right):
-    delta = get_frame_time()
-    self.anim_timer += delta
-
-    #  if the time has expired select the next frame
-    #  Se o timer espirou entao seleciona o proximo frame para ser exibido via incremento de self.anim_idx
-    if self.anim_timer >= anim_array[self.curr_anim].frame_period:
-      self.anim_timer = 0
-      if canJump == 0:
-        # for jump we have a special sequence: 1,2,3 and loop 4 and 6 (indexes: 0,1,2 and loop 3 and 5):
-        if self.anim_idx == 0: 
-          self.anim_idx = 1
-        elif self.anim_idx == 1:
-          self.anim_idx = 2
-        elif self.anim_idx == 2:
-          self.anim_idx = 3
-        elif self.anim_idx == 3:
-          self.anim_idx = 5
-        elif self.anim_idx == 5: 
-          self.anim_idx = 3
-        else:
-          self.anim_idx = 0
-
-      else:
-        self.anim_idx = self.anim_idx + 1
-
-      if self.anim_idx >= anim_array[self.curr_anim].num_frames: # se ultimo frame seleciona o primeiro
-        self.anim_idx = 0
-    
-    if face_right == True:
-      ret = anim_array[self.curr_anim].textures[self.anim_idx]
-    else:
-      ret = anim_array[self.curr_anim].flipped_textures[self.anim_idx]
-      
-    return ret
-
   def UpdateCameraCenterMV(self):
     self.camera.offset = Vector2(SCREEN_WIDTH/2.0, SCREEN_HEIGHT - 120)
     pos = Vector2(self.player.position.x, PLAYER_INITIAL_Y)
     self.camera.target = pos
-
-  def load_girl_textures(self):
-    for anim in anim_array:
-      num_frames = anim.num_frames
-      for i in range(num_frames):
-        temp_text = anim.filename_format.replace("XX", str(i+1))
-        print("texture: " + temp_text)
-        img= load_image(temp_text)
-        txt = load_texture_from_image(img)
-        image_flip_horizontal(img)
-        txt_flip = load_texture_from_image(img)
-        anim.textures.append(txt)
-        anim.flipped_textures.append(txt_flip)
 
   def on_init(self):
     currentFrame = 0
@@ -266,7 +277,7 @@ class GameNode(MiniGNode):
     #need to set in case of animation snyc
     set_target_fps(60)                 # Set our game to run at 60 frames-per-second
 
-    self.load_girl_textures()
+    # self.load_girl_textures()
 
     self.camera = Camera2D()
     self.camera.target = self.player.position
@@ -284,17 +295,6 @@ class GameNode(MiniGNode):
   def on_draw_canvas(self, timestamp):
     clear_background(RAYWHITE)
     draw_text("Controls:", 20, 20, 10, BLACK)
-
-  def on_draw_2d(self, timestamp):
-    girl_texture = self.animate_girl(False, True)
-
-    menina_source = Rectangle(0,0, girl_texture.width, girl_texture.height)
-    menina_dest = Rectangle( self.player.position.x + GIRL_POS_OFFSET_X, 
-      self.player.position.y + GIRL_POS_OFFSET_Y, 
-      girl_texture.width/4, girl_texture.height/4)
-
-    menina_ori = Vector2(girl_texture.width/8, girl_texture.height/8)
-    draw_texture_pro(girl_texture, menina_source,  menina_dest, menina_ori, 0, WHITE)
 
   def on_destroy(self):
     close_window()
