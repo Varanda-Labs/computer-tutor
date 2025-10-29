@@ -9,6 +9,7 @@ class privateNodeBase:
     self.mode3d = False
     self.camera = None
     self.z_pos = 0
+    self.sorted_nodes = None
     if name != None:
       self.all_nodes.append(self)
   
@@ -33,45 +34,48 @@ class privateNodeBase:
   def on_destroy(self):
     pass
 
-  def privateRun(self):
-
-    for n in self.all_nodes:
-      n.on_init()
-
+  def privateSortNodes(self):
     # sort all_nodes based on z_pos
     s = []
     for n in self.all_nodes:
       s.append([n.z_pos, n])
     ss = sorted(s, key=lambda x: x[0], reverse=True)
-    nodes = []
+    self.sorted_nodes = []
     for n in ss:
-      nodes.append(n[1])
+      self.sorted_nodes.append(n[1])
+
+  def privateRun(self):
+
+    for n in self.all_nodes:
+      n.on_init()
+
+    self.privateSortNodes()
 
     while not window_should_close():
       #------ Dispatch messages ------ 
-      for n in nodes:
+      for n in self.sorted_nodes:
         while len(n.queue) > 0:
           n.on_message(n.queue[0], get_frame_time())
           del(n.queue[0])
 
       #------ on_slice's -------
-      for n in nodes:
+      for n in self.sorted_nodes:
         n.on_slice(get_frame_time())
 
       #------ on_draw_canvas's -------
       begin_drawing()
-      for n in nodes:
+      for n in self.sorted_nodes:
         n.on_draw_canvas(get_frame_time())
 
       #------ on_draw_2d's or on_draw_3d -------
       if self.mode3d == False:
         begin_mode_2d(self.camera)
-        for n in nodes:
+        for n in self.sorted_nodes:
           n.on_draw_2d(get_frame_time())
         end_mode_2d()
       else:
         begin_mode_3d(self.camera)
-        for n in nodes:
+        for n in self.sorted_nodes:
           n.on_draw_3d(get_frame_time())
         end_mode_2d()
       end_drawing()
