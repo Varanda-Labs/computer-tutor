@@ -65,6 +65,10 @@ class Scene(MiniGNode):
     self.bg_texture = None
     self.moving_bg_texture = None
     self.ground_texture = None
+    self.player_position = None
+
+  def set_player_position(self, player_position):
+    self.player_position = player_position
   
   def on_init(self):
     temp_image = load_image(STATIC_BACKGROUND_FILENAME)   # Loaded in CPU memory (RAM)
@@ -80,8 +84,9 @@ class Scene(MiniGNode):
     unload_image(temp_image)
 
   def on_draw_2d(self, timestamp):
-    #draw_texture(self.bg_texture, player.position.x - PLAYER_INITIAL_X - BACKGROUND_OFFSET, 0, WHITE);
-    #draw_texture(self.moving_bg_texture, moving_bg_texture_x - (BACKGROUND_OFFSET * 4), 0, WHITE);
+    moving_bg_texture_x = self.player_position.x / 2
+    draw_texture(self.bg_texture, int(self.player_position.x - PLAYER_INITIAL_X - BACKGROUND_OFFSET), 0, WHITE)
+    draw_texture(self.moving_bg_texture, int(moving_bg_texture_x - (BACKGROUND_OFFSET * 4)), 0, WHITE)
     draw_texture(self.ground_texture, 0, 0, WHITE)
 
 class Player(MiniGNode):
@@ -92,6 +97,10 @@ class Player(MiniGNode):
     self.canJump = False        # bool canJump
     self.state = 0              # int
     self.old_state = 0          #int
+    self.game_node = None
+
+  def setGameNode(self, game_node):
+    self.game_node = game_node
 
   def UpdatePlayerState(state):
     if self.state != state:
@@ -126,6 +135,7 @@ class Player(MiniGNode):
       self.canJump = false
       UpdatePlayerState(ANIM_ID_JUMP)
 #endif
+    self.send_message(self.game_node, self.position, self) 
 
 
   
@@ -181,12 +191,16 @@ class GameNode(MiniGNode):
     self.anim_timer = 0
     self.curr_anim = ANIM_ID_RUN
     self.anim_idx = 0
-    self.scene = Scene("scene")
     self.player = Player("player", Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
+    self.scene = Scene("scene")
+    self.scene.set_player_position(self.player.position)
+    self.player.setGameNode(self)
+    self.player_position = None # received via message
 
   def on_message(self, msg, timestamp):
-    print("on_message " + self.name)
-    print("message: " + msg[0])
+    #print(self.name + " got a message from " + msg[1].name)
+    self.player_position = msg[0]
+    self.scene.set_player_position(msg[0])
 
   def animate_girl(self, canJump, face_right):
     delta = get_frame_time()
@@ -247,8 +261,6 @@ class GameNode(MiniGNode):
     framesCounter = 0
     framesSpeed = 8
 
-    
-
     init_window(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib [texture] example - sprite anim")
 
     #need to set in case of animation snyc
@@ -264,6 +276,9 @@ class GameNode(MiniGNode):
 
     minipyge_set_2d(self.camera)
 
+    self.UpdateCameraCenterMV()
+  
+  def on_slice(self, timestamp):
     self.UpdateCameraCenterMV()
 
   def on_draw_canvas(self, timestamp):
