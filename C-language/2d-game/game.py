@@ -251,11 +251,15 @@ anim_array = (
 class GameNode(MiniGNode):
   def __init__(self, name):
     super().__init__(name)
-    self.scene = Scene("scene")
     self.player = Player("player", Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
+    self.scene = Scene("scene")
     self.scene.set_player_position(self.player.position)
     self.player.setGameNode(self)
     self.player_position = None # received via message
+
+    # set z_pos: lower number last to be render (on top)
+    self.player.z_pos = 10
+    self.scene.z_pos = 20
 
   def on_message(self, msg, timestamp):
     #print(self.name + " got a message from " + msg[1].name)
