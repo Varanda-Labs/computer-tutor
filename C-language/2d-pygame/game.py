@@ -11,14 +11,7 @@ from minipyge import *
 from common import *
 from girl import *
 from scene import *
-
-
-# class UIControls(MiniGNode):
-#   def __init__(self):
-#     super().__init__("UIControls")
-
-#   def on_draw_canvas(self, timestamp):
-#     draw_text("Controls:", 20, 20, 10, BLACK)
+from ui_control import *
 
 class GameNode(MiniGNode):
   def __init__(self, name):
@@ -50,12 +43,9 @@ class GameNode(MiniGNode):
     framesCounter = 0
     framesSpeed = 8
 
-    init_window(SCREEN_WIDTH, SCREEN_HEIGHT, "raylib [texture] example - sprite anim")
+    init_window(SCREEN_WIDTH, SCREEN_HEIGHT, "Raylib Python game")
 
-    #need to set in case of animation snyc
-    set_target_fps(60)                 # Set our game to run at 60 frames-per-second
-
-    # self.load_girl_textures()
+    set_target_fps(60)
 
     self.camera = Camera2D()
     self.camera.target = self.girl.position
@@ -69,10 +59,6 @@ class GameNode(MiniGNode):
   
   def on_slice(self, timestamp):
     self.UpdateCameraCenterMV()
-
-  def on_draw_canvas(self, timestamp):
-    pass
-    #clear_background(RAYWHITE)
 
   def on_destroy(self):
     close_window()

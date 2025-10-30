@@ -5,7 +5,7 @@
             "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/C-language/2d-game/game.py",
+            "program": "${workspaceFolder}/C-language/2d-pygame/game.py",
             "console": "integratedTerminal",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/../python-env"
