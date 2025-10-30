@@ -18,10 +18,10 @@ class Scene(MiniGNode):
     self.bg_texture = None
     self.moving_bg_texture = None
     self.ground_texture = None
-    self.player_position = None
+    self.girl_position = None
 
-  def set_player_position(self, player_position):
-    self.player_position = player_position
+  def set_girl_position(self, girl_position):
+    self.girl_position = girl_position
   
   def on_init(self):
     temp_image = load_image(STATIC_BACKGROUND_FILENAME)   # Loaded in CPU memory (RAM)
@@ -37,7 +37,7 @@ class Scene(MiniGNode):
     unload_image(temp_image)
 
   def on_draw_2d(self, timestamp):
-    moving_bg_texture_x = self.player_position.x / 2
-    draw_texture(self.bg_texture, int(self.player_position.x - PLAYER_INITIAL_X - BACKGROUND_OFFSET), 0, WHITE)
+    moving_bg_texture_x = self.girl_position.x / 2
+    draw_texture(self.bg_texture, int(self.girl_position.x - PLAYER_INITIAL_X - BACKGROUND_OFFSET), 0, WHITE)
     draw_texture(self.moving_bg_texture, int(moving_bg_texture_x - (BACKGROUND_OFFSET * 4)), 0, WHITE)
     draw_texture(self.ground_texture, 0, 0, WHITE)

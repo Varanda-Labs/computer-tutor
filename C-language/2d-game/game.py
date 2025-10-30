@@ -12,277 +12,37 @@ from common import *
 from girl import *
 from scene import *
 
-# # Initialization
-# SCREEN_WIDTH = int ((1280 / 4) * 3)
-# SCREEN_HEIGHT = int ((960 / 4) * 3)
 
-# PLAYER_INITIAL_X = 400
-# PLAYER_INITIAL_Y = 830
+# class UIControls(MiniGNode):
+#   def __init__(self):
+#     super().__init__("UIControls")
 
-# G = 400
-# PLAYER_JUMP_SPD = 420.0 
-# PLAYER_HOR_SPD = 200.0
-
-# BACKGROUND_OFFSET = 80
-
-# DRAW_SPEED_FACTOR = 200.0
-
-# MAX_FRAME_SPEED = 15
-# MIN_FRAME_SPEED = 1
-
-# ANIM_ID_IDLE   =    0
-# ANIM_ID_RUN    =    1
-# ANIM_ID_JUMP   =    2
-# ANIM_ID_SHOOT  =    3
-# ANIM_ID_SLIDE  =    4
-# ANIM_ID_DEAD   =    5
-# ANIM_ID_MELEE  =    6
-
-# MENINA_DIR = "./assets/girl/"
-# GIRL_POS_OFFSET_X = 8
-# GIRL_POS_OFFSET_Y = -60
-
-# STATIC_BACKGROUND_FILENAME = "assets/background-1280x960.png"
-# MOVING_BACKGROUND_FILENAME = "assets/bk-move-6400x960.png"
-# GROUND_FILENAME = "assets/ground-01.png"
-
-# class Node(MiniGNode):
-#   def __init__(self, name):
-#     super().__init__(name)
-#   def on_init(self):
-#     print("init: " + self.name)
-#   def on_slice(self, timestamp):
-#     print("on_slice: " + self.name)
-#   def on_message(self, msg, timestamp):
-#     print("on_message " + self.name)
-#     print("message: " + msg[0])
-
-# def test():
-#   node_a = Node("node_a")
-#   node_b = Node("node_b")
-#   node_b.send_message(node_a, "This was a message sent from node B")
-#   minipyge_run()
-
-# class Scene(MiniGNode):
-#   def __init__(self, name):
-#     super().__init__(name)
-#     self.bg_texture = None
-#     self.moving_bg_texture = None
-#     self.ground_texture = None
-#     self.player_position = None
-
-#   def set_player_position(self, player_position):
-#     self.player_position = player_position
-  
-#   def on_init(self):
-#     temp_image = load_image(STATIC_BACKGROUND_FILENAME)   # Loaded in CPU memory (RAM)
-#     self.bg_texture = load_texture_from_image(temp_image);          # Image converted to texture, GPU memory (VRAM)
-#     unload_image(temp_image);   # Once image has been converted to texture and uploaded to VRAM, it can be unloaded from RAM
-
-#     temp_image = load_image(MOVING_BACKGROUND_FILENAME)
-#     self.moving_bg_texture = load_texture_from_image(temp_image)
-#     unload_image(temp_image)
-
-#     temp_image = load_image(GROUND_FILENAME)
-#     self.ground_texture = load_texture_from_image(temp_image)
-#     unload_image(temp_image)
-
-#   def on_draw_2d(self, timestamp):
-#     moving_bg_texture_x = self.player_position.x / 2
-#     draw_texture(self.bg_texture, int(self.player_position.x - PLAYER_INITIAL_X - BACKGROUND_OFFSET), 0, WHITE)
-#     draw_texture(self.moving_bg_texture, int(moving_bg_texture_x - (BACKGROUND_OFFSET * 4)), 0, WHITE)
-#     draw_texture(self.ground_texture, 0, 0, WHITE)
-
-# class Player(MiniGNode):
-#   def __init__(self, name, position):
-#     super().__init__(name)
-#     self.position = position  # Vector2 position
-#     self.speed = 0              # float speed
-#     self.canJump = False        # bool canJump
-#     self.state = 0              # int
-#     self.old_state = 0          #int
-#     self.game_node = None
-#     self.anim_timer = 0
-#     self.curr_anim = ANIM_ID_RUN
-#     self.anim_idx = 0
-#     self.face_right = 1
-
-#   def load_girl_textures(self):
-#     for anim in anim_array:
-#       num_frames = anim.num_frames
-#       for i in range(num_frames):
-#         temp_text = anim.filename_format.replace("XX", str(i+1))
-#         print("texture: " + temp_text)
-#         img= load_image(temp_text)
-#         txt = load_texture_from_image(img)
-#         image_flip_horizontal(img)
-#         txt_flip = load_texture_from_image(img)
-#         anim.textures.append(txt)
-#         anim.flipped_textures.append(txt_flip)
-
-#   def setGameNode(self, game_node):
-#     self.game_node = game_node
-
-#   def UpdatePlayerState(self, state):
-#     if self.state != state:
-#       anim_idx = 0
-#       curr_anim = state
-#     self.old_state = self.state
-#     self.state = state
-
-#   def on_init(self):
-#     self.load_girl_textures()
-
-#   def on_slice(self, timestamp):
-#     delta = timestamp
-
-#     if is_key_down(KEY_LEFT) == True:
-#       self.position.x -= PLAYER_HOR_SPD * delta
-#       self.face_right = 0
-#       if self.canJump == True:
-#         self.UpdatePlayerState(ANIM_ID_RUN)
-
-#     elif is_key_down(KEY_RIGHT) == True:
-#       self.position.x += PLAYER_HOR_SPD * delta
-#       self.face_right = 1
-#       if self.canJump == True:
-#         self.UpdatePlayerState(ANIM_ID_RUN)
-
-#     else:
-#       if self.canJump == True:
-#         self.UpdatePlayerState(ANIM_ID_IDLE)
-
-#     if (((is_key_down(KEY_SPACE) == True) and (self.canJump == True)) or
-#         ((is_key_down(KEY_UP) == True) and (self.canJump == True))):
-#       self.speed = -PLAYER_JUMP_SPD
-# #ifdef LIMIT_SINGLE_JUMP
-#       self.canJump = False
-#       self.UpdatePlayerState(ANIM_ID_JUMP)
-# #endif
-#     self.send_message(self.game_node, self.position, self) 
-
-#   def animate_girl(self):
-#     delta = get_frame_time()
-#     self.anim_timer += delta
-
-#     #  if the time has expired select the next frame
-#     #  Se o timer espirou entao seleciona o proximo frame para ser exibido via incremento de self.anim_idx
-#     if self.anim_timer >= anim_array[self.curr_anim].frame_period:
-#       self.anim_timer = 0
-#       if self.canJump == True:
-#         # for jump we have a special sequence: 1,2,3 and loop 4 and 6 (indexes: 0,1,2 and loop 3 and 5):
-#         if self.anim_idx == 0: 
-#           self.anim_idx = 1
-#         elif self.anim_idx == 1:
-#           self.anim_idx = 2
-#         elif self.anim_idx == 2:
-#           self.anim_idx = 3
-#         elif self.anim_idx == 3:
-#           self.anim_idx = 5
-#         elif self.anim_idx == 5: 
-#           self.anim_idx = 3
-#         else:
-#           self.anim_idx = 0
-
-#       else:
-#         self.anim_idx = self.anim_idx + 1
-
-#       if self.anim_idx >= anim_array[self.curr_anim].num_frames: # se ultimo frame seleciona o primeiro
-#         self.anim_idx = 0
-    
-#     if self.face_right == 1:
-#       ret = anim_array[self.curr_anim].textures[self.anim_idx]
-#     else:
-#       ret = anim_array[self.curr_anim].flipped_textures[self.anim_idx]
-      
-#     return ret
-  
-#   envItems = [
-#     Rectangle(293, 833, 1792, 128),
-#     Rectangle(892, 627, 385, 96),
-#     Rectangle(1324, 497, 515, 96),
-#     Rectangle(2342, 829,  764, 130),
-#     Rectangle(3108, 577,  643, 383),
-#     Rectangle(4003, 431,  512, 96 ),
-#     Rectangle(4774, 831,  1627, 130),
-#     Rectangle(2801, 671, 257, 96)
-#   ]
-
-#   def on_draw_2d(self, timestamp):
-#     girl_texture = self.animate_girl()
-
-#     menina_source = Rectangle(0,0, girl_texture.width, girl_texture.height)
-#     menina_dest = Rectangle( self.position.x + GIRL_POS_OFFSET_X, 
-#       self.position.y + GIRL_POS_OFFSET_Y, 
-#       girl_texture.width/4, girl_texture.height/4)
-
-#     menina_ori = Vector2(girl_texture.width/8, girl_texture.height/8)
-#     draw_texture_pro(girl_texture, menina_source,  menina_dest, menina_ori, 0, WHITE)
-
-# class AnimInfo:
-#   def __init__(self, id, name, filename, num_frames, frame_period = 0.1):
-#     self.anim_id = id
-#     self.name = name
-#     self.filename_format = filename
-#     self.num_frames = num_frames
-#     self.textures = []
-#     self.flipped_textures = []
-#     self.frame_period = frame_period
-
-
-# anim_array = (
-#   #--------------- idle ----------------
-#   AnimInfo(ANIM_ID_IDLE, "Idle", MENINA_DIR + "Idle-XX.png", 10),
-
-#   #--------------- run ----------------
-#   AnimInfo(ANIM_ID_RUN, "Run", MENINA_DIR + "Run-XX.png", 8, 0.10),
-
-#   #--------------- jump ----------------
-#   AnimInfo(ANIM_ID_JUMP, "Jump", MENINA_DIR + "Jump-XX.png", 10),
-
-#   #--------------- shoot ----------------
-#   AnimInfo(ANIM_ID_SHOOT, "Shoot", MENINA_DIR +"Shoot-XX.png", 3),
-
-#   #--------------- slide ----------------
-#   AnimInfo(ANIM_ID_SLIDE, "Slide", MENINA_DIR + "Slide-XX.png", 5),
-
-#   #--------------- dead ----------------
-#   AnimInfo(ANIM_ID_DEAD, "Dead", MENINA_DIR + "Dead-XX.png", 10),
-
-#   #--------------- MeLee ----------------
-#   AnimInfo(ANIM_ID_MELEE, "MeLee", MENINA_DIR + "Melee-XX.png", 7),
-# )
-
-class UIControls(MiniGNode):
-  def __init__(self):
-    super().__init__("UIControls")
-
-  def on_draw_canvas(self, timestamp):
-    draw_text("Controls:", 20, 20, 10, BLACK)
+#   def on_draw_canvas(self, timestamp):
+#     draw_text("Controls:", 20, 20, 10, BLACK)
 
 class GameNode(MiniGNode):
   def __init__(self, name):
     super().__init__(name)
-    self.player = Player("player", Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
+    self.girl = Girl("girl", Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
     self.scene = Scene("scene")
     self.uicontrols = UIControls()
-    self.scene.set_player_position(self.player.position)
-    self.player.setGameNode(self)
-    self.player_position = None # received via message
+    self.scene.set_girl_position(self.girl.position)
+    self.girl.setGameNode(self)
+    self.girl_position = None # received via message
 
     # set z_pos: lower number last to be render (on top)
     self.uicontrols.z_pos = 10
-    self.player.z_pos = 20
+    self.girl.z_pos = 20
     self.scene.z_pos = 30
 
   def on_message(self, msg, timestamp):
     #print(self.name + " got a message from " + msg[1].name)
-    self.player_position = msg[0]
-    self.scene.set_player_position(msg[0])
+    self.girl_position = msg[0]
+    self.scene.set_girl_position(msg[0])
 
   def UpdateCameraCenterMV(self):
     self.camera.offset = Vector2(SCREEN_WIDTH/2.0, SCREEN_HEIGHT - 120)
-    pos = Vector2(self.player.position.x, PLAYER_INITIAL_Y)
+    pos = Vector2(self.girl.position.x, PLAYER_INITIAL_Y)
     self.camera.target = pos
 
   def on_init(self):
@@ -298,7 +58,7 @@ class GameNode(MiniGNode):
     # self.load_girl_textures()
 
     self.camera = Camera2D()
-    self.camera.target = self.player.position
+    self.camera.target = self.girl.position
     self.camera.offset = Vector2( SCREEN_WIDTH/2.0, SCREEN_HEIGHT/2.0)
     self.camera.rotation = 0.0
     self.camera.zoom = 1.0

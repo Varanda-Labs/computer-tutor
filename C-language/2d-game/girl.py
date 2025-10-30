@@ -18,11 +18,11 @@ G = 400
 PLAYER_JUMP_SPD = 420.0 
 PLAYER_HOR_SPD = 200.0
 
-MENINA_DIR = "./assets/girl/"
+GIRL_DIR = "./assets/girl/"
 GIRL_POS_OFFSET_X = 8
 GIRL_POS_OFFSET_Y = -60
 
-class Player(MiniGNode):
+class Girl(MiniGNode):
   def __init__(self, name, position):
     super().__init__(name)
     self.position = position  # Vector2 position
@@ -52,7 +52,7 @@ class Player(MiniGNode):
   def setGameNode(self, game_node):
     self.game_node = game_node
 
-  def UpdatePlayerState(self, state):
+  def UpdateGirlState(self, state):
     if self.state != state:
       anim_idx = 0
       curr_anim = state
@@ -69,24 +69,24 @@ class Player(MiniGNode):
       self.position.x -= PLAYER_HOR_SPD * delta
       self.face_right = 0
       if self.canJump == True:
-        self.UpdatePlayerState(ANIM_ID_RUN)
+        self.UpdateGirlState(ANIM_ID_RUN)
 
     elif is_key_down(KEY_RIGHT) == True:
       self.position.x += PLAYER_HOR_SPD * delta
       self.face_right = 1
       if self.canJump == True:
-        self.UpdatePlayerState(ANIM_ID_RUN)
+        self.UpdateGirlState(ANIM_ID_RUN)
 
     else:
       if self.canJump == True:
-        self.UpdatePlayerState(ANIM_ID_IDLE)
+        self.UpdateGirlState(ANIM_ID_IDLE)
 
     if (((is_key_down(KEY_SPACE) == True) and (self.canJump == True)) or
         ((is_key_down(KEY_UP) == True) and (self.canJump == True))):
       self.speed = -PLAYER_JUMP_SPD
 #ifdef LIMIT_SINGLE_JUMP
       self.canJump = False
-      self.UpdatePlayerState(ANIM_ID_JUMP)
+      self.UpdateGirlState(ANIM_ID_JUMP)
 #endif
     self.send_message(self.game_node, self.position, self) 
 
@@ -140,13 +140,13 @@ class Player(MiniGNode):
   def on_draw_2d(self, timestamp):
     girl_texture = self.animate_girl()
 
-    menina_source = Rectangle(0,0, girl_texture.width, girl_texture.height)
-    menina_dest = Rectangle( self.position.x + GIRL_POS_OFFSET_X, 
+    girl_source = Rectangle(0,0, girl_texture.width, girl_texture.height)
+    girl_dest = Rectangle( self.position.x + GIRL_POS_OFFSET_X, 
       self.position.y + GIRL_POS_OFFSET_Y, 
       girl_texture.width/4, girl_texture.height/4)
 
-    menina_ori = Vector2(girl_texture.width/8, girl_texture.height/8)
-    draw_texture_pro(girl_texture, menina_source,  menina_dest, menina_ori, 0, WHITE)
+    girl_ori = Vector2(girl_texture.width/8, girl_texture.height/8)
+    draw_texture_pro(girl_texture, girl_source,  girl_dest, girl_ori, 0, WHITE)
 
 class AnimInfo:
   def __init__(self, id, name, filename, num_frames, frame_period = 0.1):
@@ -161,23 +161,23 @@ class AnimInfo:
 
 anim_array = (
   #--------------- idle ----------------
-  AnimInfo(ANIM_ID_IDLE, "Idle", MENINA_DIR + "Idle-XX.png", 10),
+  AnimInfo(ANIM_ID_IDLE, "Idle", GIRL_DIR + "Idle-XX.png", 10),
 
   #--------------- run ----------------
-  AnimInfo(ANIM_ID_RUN, "Run", MENINA_DIR + "Run-XX.png", 8, 0.10),
+  AnimInfo(ANIM_ID_RUN, "Run", GIRL_DIR + "Run-XX.png", 8, 0.10),
 
   #--------------- jump ----------------
-  AnimInfo(ANIM_ID_JUMP, "Jump", MENINA_DIR + "Jump-XX.png", 10),
+  AnimInfo(ANIM_ID_JUMP, "Jump", GIRL_DIR + "Jump-XX.png", 10),
 
   #--------------- shoot ----------------
-  AnimInfo(ANIM_ID_SHOOT, "Shoot", MENINA_DIR +"Shoot-XX.png", 3),
+  AnimInfo(ANIM_ID_SHOOT, "Shoot", GIRL_DIR +"Shoot-XX.png", 3),
 
   #--------------- slide ----------------
-  AnimInfo(ANIM_ID_SLIDE, "Slide", MENINA_DIR + "Slide-XX.png", 5),
+  AnimInfo(ANIM_ID_SLIDE, "Slide", GIRL_DIR + "Slide-XX.png", 5),
 
   #--------------- dead ----------------
-  AnimInfo(ANIM_ID_DEAD, "Dead", MENINA_DIR + "Dead-XX.png", 10),
+  AnimInfo(ANIM_ID_DEAD, "Dead", GIRL_DIR + "Dead-XX.png", 10),
 
   #--------------- MeLee ----------------
-  AnimInfo(ANIM_ID_MELEE, "MeLee", MENINA_DIR + "Melee-XX.png", 7),
+  AnimInfo(ANIM_ID_MELEE, "MeLee", GIRL_DIR + "Melee-XX.png", 7),
 )

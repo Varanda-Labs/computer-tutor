@@ -23,7 +23,7 @@ ANIM_ID_SLIDE  =    4
 ANIM_ID_DEAD   =    5
 ANIM_ID_MELEE  =    6
 
-MENINA_DIR = "./assets/girl/"
+GIRL_DIR = "./assets/girl/"
 GIRL_POS_OFFSET_X = 8
 GIRL_POS_OFFSET_Y = -60
 
@@ -33,7 +33,7 @@ curr_anim = ANIM_ID_RUN
 anim_idx = 0
 camera = None
 
-class Player:
+class Girl:
   def __init__(self, position):
     self.position = position  # Vector2 position
   position = None
@@ -53,7 +53,7 @@ class Player:
     Rectangle(2801, 671, 257, 96)
   ]
 
-player = Player(Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
+girl = Girl(Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
 
 class AnimInfo:
   def __init__(self, id, name, filename, num_frames, frame_period = 0.1):
@@ -68,25 +68,25 @@ class AnimInfo:
 
 anim_array = (
   #--------------- idle ----------------
-  AnimInfo(ANIM_ID_IDLE, "Idle", MENINA_DIR + "Idle-XX.png", 10),
+  AnimInfo(ANIM_ID_IDLE, "Idle", GIRL_DIR + "Idle-XX.png", 10),
 
   #--------------- run ----------------
-  AnimInfo(ANIM_ID_RUN, "Run", MENINA_DIR + "Run-XX.png", 8, 0.15),
+  AnimInfo(ANIM_ID_RUN, "Run", GIRL_DIR + "Run-XX.png", 8, 0.15),
 
   #--------------- jump ----------------
-  AnimInfo(ANIM_ID_JUMP, "Jump", MENINA_DIR + "Jump-XX.png", 10),
+  AnimInfo(ANIM_ID_JUMP, "Jump", GIRL_DIR + "Jump-XX.png", 10),
 
   #--------------- shoot ----------------
-  AnimInfo(ANIM_ID_SHOOT, "Shoot", MENINA_DIR +"Shoot-XX.png", 3),
+  AnimInfo(ANIM_ID_SHOOT, "Shoot", GIRL_DIR +"Shoot-XX.png", 3),
 
   #--------------- slide ----------------
-  AnimInfo(ANIM_ID_SLIDE, "Slide", MENINA_DIR + "Slide-XX.png", 5),
+  AnimInfo(ANIM_ID_SLIDE, "Slide", GIRL_DIR + "Slide-XX.png", 5),
 
   #--------------- dead ----------------
-  AnimInfo(ANIM_ID_DEAD, "Dead", MENINA_DIR + "Dead-XX.png", 10),
+  AnimInfo(ANIM_ID_DEAD, "Dead", GIRL_DIR + "Dead-XX.png", 10),
 
   #--------------- MeLee ----------------
-  AnimInfo(ANIM_ID_MELEE, "MeLee", MENINA_DIR + "Melee-XX.png", 7),
+  AnimInfo(ANIM_ID_MELEE, "MeLee", GIRL_DIR + "Melee-XX.png", 7),
 
 )
 
@@ -133,7 +133,7 @@ def animate_girl(canJump, face_right):
 def UpdateCameraCenterMV():
   global camera
   camera.offset = Vector2(SCREEN_WIDTH/2.0, SCREEN_HEIGHT - 120)
-  pos = Vector2(player.position.x, PLAYER_INITIAL_Y)
+  pos = Vector2(girl.position.x, PLAYER_INITIAL_Y)
   camera.target = pos
 
 def load_girl_textures():
@@ -163,7 +163,7 @@ def game():
   load_girl_textures()
 
   camera = Camera2D()
-  camera.target = player.position
+  camera.target = girl.position
   camera.offset = Vector2( SCREEN_WIDTH/2.0, SCREEN_HEIGHT/2.0)
   camera.rotation = 0.0
   camera.zoom = 1.0
@@ -183,13 +183,13 @@ def game():
       #draw sprite sheet texture
       girl_texture = animate_girl(False, True)
 
-      menina_source = Rectangle(0,0, girl_texture.width, girl_texture.height)
-      menina_dest = Rectangle( player.position.x + GIRL_POS_OFFSET_X, 
-        player.position.y + GIRL_POS_OFFSET_Y, 
+      girl_source = Rectangle(0,0, girl_texture.width, girl_texture.height)
+      girl_dest = Rectangle( girl.position.x + GIRL_POS_OFFSET_X, 
+        girl.position.y + GIRL_POS_OFFSET_Y, 
         girl_texture.width/4, girl_texture.height/4)
 
-      menina_ori = Vector2(girl_texture.width/8, girl_texture.height/8)
-      draw_texture_pro(girl_texture, menina_source,  menina_dest, menina_ori, 0, WHITE)
+      girl_ori = Vector2(girl_texture.width/8, girl_texture.height/8)
+      draw_texture_pro(girl_texture, girl_source,  girl_dest, girl_ori, 0, WHITE)
 
       end_mode_2d()
 
