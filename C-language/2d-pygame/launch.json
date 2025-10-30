@@ -10,7 +10,7 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/../python-env"
             },
-            "cwd": "${workspaceFolder}/C-language/2d-game"
+            "cwd": "${workspaceFolder}/C-language/2d-pygame"
         }
     ]
 }
