@@ -101,6 +101,7 @@ class Player(MiniGNode):
     self.anim_timer = 0
     self.curr_anim = ANIM_ID_RUN
     self.anim_idx = 0
+    self.face_right = 1
 
   def load_girl_textures(self):
     for anim in anim_array:
@@ -118,7 +119,7 @@ class Player(MiniGNode):
   def setGameNode(self, game_node):
     self.game_node = game_node
 
-  def UpdatePlayerState(state):
+  def UpdatePlayerState(self, state):
     if self.state != state:
       anim_idx = 0
       curr_anim = state
@@ -133,30 +134,30 @@ class Player(MiniGNode):
 
     if is_key_down(KEY_LEFT) == True:
       self.position.x -= PLAYER_HOR_SPD * delta
-      face_right = 0
+      self.face_right = 0
       if self.canJump == True:
-        UpdatePlayerState(ANIM_ID_RUN)
+        self.UpdatePlayerState(ANIM_ID_RUN)
 
     elif is_key_down(KEY_RIGHT) == True:
       self.position.x += PLAYER_HOR_SPD * delta
-      face_right = 1
+      self.face_right = 1
       if self.canJump == True:
-        UpdatePlayerState(ANIM_ID_RUN)
+        self.UpdatePlayerState(ANIM_ID_RUN)
 
     else:
       if self.canJump == True:
-        UpdatePlayerState(ANIM_ID_IDLE)
+        self.UpdatePlayerState(ANIM_ID_IDLE)
 
     if (((is_key_down(KEY_SPACE) == True) and (self.canJump == True)) or
         ((is_key_down(KEY_UP) == True) and (self.canJump == True))):
       self.speed = -PLAYER_JUMP_SPD
 #ifdef LIMIT_SINGLE_JUMP
-      self.canJump = false
-      UpdatePlayerState(ANIM_ID_JUMP)
+      self.canJump = False
+      self.UpdatePlayerState(ANIM_ID_JUMP)
 #endif
     self.send_message(self.game_node, self.position, self) 
 
-  def animate_girl(self, canJump, face_right):
+  def animate_girl(self):
     delta = get_frame_time()
     self.anim_timer += delta
 
@@ -164,7 +165,7 @@ class Player(MiniGNode):
     #  Se o timer espirou entao seleciona o proximo frame para ser exibido via incremento de self.anim_idx
     if self.anim_timer >= anim_array[self.curr_anim].frame_period:
       self.anim_timer = 0
-      if canJump == 0:
+      if self.canJump == True:
         # for jump we have a special sequence: 1,2,3 and loop 4 and 6 (indexes: 0,1,2 and loop 3 and 5):
         if self.anim_idx == 0: 
           self.anim_idx = 1
@@ -185,7 +186,7 @@ class Player(MiniGNode):
       if self.anim_idx >= anim_array[self.curr_anim].num_frames: # se ultimo frame seleciona o primeiro
         self.anim_idx = 0
     
-    if face_right == True:
+    if self.face_right == 1:
       ret = anim_array[self.curr_anim].textures[self.anim_idx]
     else:
       ret = anim_array[self.curr_anim].flipped_textures[self.anim_idx]
@@ -204,7 +205,7 @@ class Player(MiniGNode):
   ]
 
   def on_draw_2d(self, timestamp):
-    girl_texture = self.animate_girl(False, True)
+    girl_texture = self.animate_girl()
 
     menina_source = Rectangle(0,0, girl_texture.width, girl_texture.height)
     menina_dest = Rectangle( self.position.x + GIRL_POS_OFFSET_X, 
@@ -230,7 +231,7 @@ anim_array = (
   AnimInfo(ANIM_ID_IDLE, "Idle", MENINA_DIR + "Idle-XX.png", 10),
 
   #--------------- run ----------------
-  AnimInfo(ANIM_ID_RUN, "Run", MENINA_DIR + "Run-XX.png", 8, 0.15),
+  AnimInfo(ANIM_ID_RUN, "Run", MENINA_DIR + "Run-XX.png", 8, 0.10),
 
   #--------------- jump ----------------
   AnimInfo(ANIM_ID_JUMP, "Jump", MENINA_DIR + "Jump-XX.png", 10),
@@ -248,11 +249,19 @@ anim_array = (
   AnimInfo(ANIM_ID_MELEE, "MeLee", MENINA_DIR + "Melee-XX.png", 7),
 )
 
+class UIControls(MiniGNode):
+  def __init__(self):
+    super().__init__("UIControls")
+
+  def on_draw_canvas(self, timestamp):
+    draw_text("Controls:", 20, 20, 10, BLACK)
+
 class GameNode(MiniGNode):
   def __init__(self, name):
     super().__init__(name)
     self.player = Player("player", Vector2(PLAYER_INITIAL_X, PLAYER_INITIAL_Y))
     self.scene = Scene("scene")
+    self.uicontrols = UIControls()
     self.scene.set_player_position(self.player.position)
     self.player.setGameNode(self)
     self.player_position = None # received via message
@@ -260,6 +269,7 @@ class GameNode(MiniGNode):
     # set z_pos: lower number last to be render (on top)
     self.player.z_pos = 10
     self.scene.z_pos = 20
+    self.uicontrols.z_pos = 50
 
   def on_message(self, msg, timestamp):
     #print(self.name + " got a message from " + msg[1].name)
@@ -297,8 +307,8 @@ class GameNode(MiniGNode):
     self.UpdateCameraCenterMV()
 
   def on_draw_canvas(self, timestamp):
-    clear_background(RAYWHITE)
-    draw_text("Controls:", 20, 20, 10, BLACK)
+    pass
+    #clear_background(RAYWHITE)
 
   def on_destroy(self):
     close_window()

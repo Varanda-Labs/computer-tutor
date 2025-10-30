@@ -37,7 +37,8 @@ class privateNodeBase:
   def on_destroy(self):
     pass
 
-  def privateSortNodes(self):
+    # static member
+  def privateSortNodes():
     # sort all_nodes based on z_pos
     s = []
     for n in privateNodeBase.all_nodes:
@@ -52,7 +53,7 @@ class privateNodeBase:
     for n in privateNodeBase.all_nodes:
       n.on_init()
 
-    self.privateSortNodes()
+    privateNodeBase.privateSortNodes() # static member
 
     while not window_should_close():
       #------ Dispatch messages ------ 
@@ -65,10 +66,8 @@ class privateNodeBase:
       for n in privateNodeBase.sorted_nodes:
         n.on_slice(get_frame_time())
 
-      #------ on_draw_canvas's -------
+      #------ start drawing -------
       begin_drawing()
-      for n in privateNodeBase.sorted_nodes:
-        n.on_draw_canvas(get_frame_time())
 
       #------ on_draw_2d's or on_draw_3d -------
       if self.mode3d == False:
@@ -81,6 +80,11 @@ class privateNodeBase:
         for n in privateNodeBase.sorted_nodes:
           n.on_draw_3d(get_frame_time())
         end_mode_2d()
+
+      #------ on_draw_canvas's -------
+      for n in privateNodeBase.sorted_nodes:
+        n.on_draw_canvas(get_frame_time())
+
       end_drawing()
 
     #----- destruction 
