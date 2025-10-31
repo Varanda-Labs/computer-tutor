@@ -5,12 +5,12 @@
             "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/C-language/2d-pygame/game.py",
+            "program": "${workspaceFolder}/Py-language/2d-pygame/game.py",
             "console": "integratedTerminal",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/../python-env"
             },
-            "cwd": "${workspaceFolder}/C-language/2d-pygame"
+            "cwd": "${workspaceFolder}/Py-language/2d-pygame"
         }
     ]
 }
