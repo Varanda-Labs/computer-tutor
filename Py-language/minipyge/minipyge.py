@@ -1,8 +1,12 @@
-"""MiniPyGE - Mini Python Game Engine
+"""
+  MiniPyGE - Mini Python Game Engine
 
   Tiny set of classes and methods to make raylib based games organized.
   The classes of the game can be derived from MiniGNode. Callbacks methods are
   automatically called to perform basic operations like draw.
+
+  License: GPL3
+  Copyright 2025, Varanda Labs Inc.
 """
 
 from pyray import *

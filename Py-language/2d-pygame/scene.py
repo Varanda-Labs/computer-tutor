@@ -1,3 +1,13 @@
+"""
+
+                          MiniPyGE Demo 2D Game 
+
+ By: Marcelo Varanda
+ Copyrights 2025 Varanda Labs Inc. 
+
+ raylib API: https://electronstudio.github.io/raylib-python-cffi/pyray.html
+
+"""
 
 import sys
 
@@ -35,23 +45,6 @@ STATIC_BACKGROUND_FILENAME = "assets/background-1280x960.png"
 MOVING_BACKGROUND_FILENAME = "assets/bk-move-6400x960.png"
 GROUND_FILENAME = "assets/ground-01.png"
 
-# class Floor():
-#   def __init__(self, x, y, w, h):
-#     self.x 
-#     self.y
-#     self.w
-#     self.h
-
-#     EnvItem envItems[] = {
-#     {{ 293, 833, 1792, 128 }, 1, GRAY },
-#     {{ 892, 627, 385, 96 }, 1, GRAY },   //(plataforma)
-#     {{ 1324, 497, 515, 96 }, 1, GRAY },  //  (plataforma)
-#     {{ 2342, 829,  764, 130 }, 1, GRAY },
-#     {{ 3108, 577,  643, 383}, 1, GRAY },
-#     {{ 4003, 431,  512, 96  }, 1, GRAY }, //   (plataforma)
-#     {{ 4774, 831,  1627, 130}, 1, GRAY },
-#     {{ 2801, 671, 257, 96}, 1, GRAY },
-#     };
 
 class Scene(MiniGNode):
   def __init__(self, name):

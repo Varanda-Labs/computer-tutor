@@ -1,5 +1,15 @@
-# Girl Animation
-# 
+#
+
+"""
+
+                             MiniPyGE Demo 2D Game 
+
+ By: Marcelo Varanda
+ Copyrights 2025 Varanda Labs Inc. 
+
+ raylib API: https://electronstudio.github.io/raylib-python-cffi/pyray.html
+
+"""
 
 import sys, time
 
