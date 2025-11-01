@@ -35,6 +35,10 @@ class Girl(MiniGNode):
     self.curr_anim = ANIM_ID_RUN
     self.anim_idx = 0
     self.face_right = 1
+    self.floor_blocks = None
+
+  def set_floor_blocks(self, blocks):
+    self.floor_blocks = blocks
 
   def load_girl_textures(self):
     for anim in anim_array:
@@ -88,6 +92,35 @@ class Girl(MiniGNode):
       self.canJump = False
       self.UpdateGirlState(ANIM_ID_JUMP)
 #endif
+    hitObstacle = False
+    in_air = True
+    p = self.position
+    for b in self.floor_blocks:
+      if  b.x <= p.x and \
+          b.x + b.width >= p.x and \
+          b.y >= p.y and \
+          b.y <= p.y + self.speed*delta:
+
+        hitObstacle = True
+        self.speed = 0.0
+        p.y = b.y
+        in_air = False
+        curr_anim = self.state
+        break
+
+    if in_air == True: 
+      # if (log) printf("in air %d\n", log_cnt);
+      # if the girl is running we change the animation to jump as she is falling
+      if self.state == ANIM_ID_RUN:
+          curr_anim = ANIM_ID_JUMP
+
+    if hitObstacle == False:
+      self.position.y += self.speed*delta
+      self.speed += G*delta
+      self.canJump = False
+    else:
+      self.canJump = True
+
     self.send_message(self.game_node, self.position, self) 
 
   def animate_girl(self):
@@ -98,7 +131,7 @@ class Girl(MiniGNode):
     #  Se o timer espirou entao seleciona o proximo frame para ser exibido via incremento de self.anim_idx
     if self.anim_timer >= anim_array[self.curr_anim].frame_period:
       self.anim_timer = 0
-      if self.canJump == True:
+      if self.canJump == False:
         # for jump we have a special sequence: 1,2,3 and loop 4 and 6 (indexes: 0,1,2 and loop 3 and 5):
         if self.anim_idx == 0: 
           self.anim_idx = 1
@@ -125,17 +158,6 @@ class Girl(MiniGNode):
       ret = anim_array[self.curr_anim].flipped_textures[self.anim_idx]
       
     return ret
-  
-  envItems = [
-    Rectangle(293, 833, 1792, 128),
-    Rectangle(892, 627, 385, 96),
-    Rectangle(1324, 497, 515, 96),
-    Rectangle(2342, 829,  764, 130),
-    Rectangle(3108, 577,  643, 383),
-    Rectangle(4003, 431,  512, 96 ),
-    Rectangle(4774, 831,  1627, 130),
-    Rectangle(2801, 671, 257, 96)
-  ]
 
   def on_draw_2d(self, timestamp):
     girl_texture = self.animate_girl()

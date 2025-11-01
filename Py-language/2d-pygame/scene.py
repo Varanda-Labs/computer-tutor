@@ -8,9 +8,50 @@ MINI_PY_GE_DIR = "../minipyge"
 sys.path.append(MINI_PY_GE_DIR)
 from minipyge import *
 
+"""
+Info from GIMP file:
+===================
+
+
+box-1 pos: 293, 833   size: 1792x128
+box-2 pos: 892, 627   size: 385x96   (plataforma)
+box-3 pos: 1324, 497  size: 515x96    (plataforma)
+box-4 pos: 2342, 829  size: 764x130
+box-5 pos: 3108, 577  size: 643x383
+box-6 pos: 4003, 431  size: 512x96     (plataforma)
+box-7 pos: 4774, 831  size: 1627x130
+box-8 pos: 2801, 671  size 257x96
+
+bush-1 pos: 4130, 359  size: 133x73
+
+Cactos-1 pos: 1442, 377  size: 106x119
+Cactos-2 pos: 2626, 734  size: 92x98
+Cactos-3 pos: 3256, 464  size: 109x117
+Cactos-4 pos: 5026, 718  size: 111x112
+Cactos-5 pos: 5593, 721  size: 112x110
+"""
+
 STATIC_BACKGROUND_FILENAME = "assets/background-1280x960.png"
 MOVING_BACKGROUND_FILENAME = "assets/bk-move-6400x960.png"
 GROUND_FILENAME = "assets/ground-01.png"
+
+# class Floor():
+#   def __init__(self, x, y, w, h):
+#     self.x 
+#     self.y
+#     self.w
+#     self.h
+
+#     EnvItem envItems[] = {
+#     {{ 293, 833, 1792, 128 }, 1, GRAY },
+#     {{ 892, 627, 385, 96 }, 1, GRAY },   //(plataforma)
+#     {{ 1324, 497, 515, 96 }, 1, GRAY },  //  (plataforma)
+#     {{ 2342, 829,  764, 130 }, 1, GRAY },
+#     {{ 3108, 577,  643, 383}, 1, GRAY },
+#     {{ 4003, 431,  512, 96  }, 1, GRAY }, //   (plataforma)
+#     {{ 4774, 831,  1627, 130}, 1, GRAY },
+#     {{ 2801, 671, 257, 96}, 1, GRAY },
+#     };
 
 class Scene(MiniGNode):
   def __init__(self, name):
@@ -19,6 +60,19 @@ class Scene(MiniGNode):
     self.moving_bg_texture = None
     self.ground_texture = None
     self.girl_position = None
+    self.floor_blocks = [
+      Rectangle(293, 833, 1792, 128),
+      Rectangle(892, 627, 385, 96 ),      #  (plataforma)
+      Rectangle(1324, 497, 515, 96 ),     #  (plataforma)
+      Rectangle(2342, 829,  764, 130 ),
+      Rectangle(3108, 577,  643, 383),
+      Rectangle(4003, 431,  512, 96  ),   #  (plataforma)
+      Rectangle(4774, 831,  1627, 130),
+      Rectangle(2801, 671, 257, 96)
+    ]
+  
+  def get_floor_blocks(self):
+    return self.floor_blocks
 
   def set_girl_position(self, girl_position):
     self.girl_position = girl_position

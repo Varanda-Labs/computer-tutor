@@ -28,6 +28,9 @@ class GameNode(MiniGNode):
     self.girl.z_pos = 20
     self.scene.z_pos = 30
 
+    # girl needs to know where the floor blocks are:
+    self.girl.set_floor_blocks(self.scene.get_floor_blocks())
+
   def on_message(self, msg, timestamp):
     #print(self.name + " got a message from " + msg[1].name)
     self.girl_position = msg[0]
