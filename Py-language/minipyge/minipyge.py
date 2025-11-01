@@ -1,20 +1,8 @@
-def add(a: int, b: int) -> int:  
-    """Add two numbers.  
- 
-    Args:  
-        a: First number.  
-        b: Second number.  
- 
-    Returns:  
-        Sum of `a` and `b`.  
-    """  
-    return a + b  
-
 """MiniPyGE - Mini Python Game Engine
 
-Tiny set of classes and methods to make raylib based games organized.
-The classes of the game can be derived from MiniGNode. Callbacks methods are
- automatically called to perform basic operations like draw.
+  Tiny set of classes and methods to make raylib based games organized.
+  The classes of the game can be derived from MiniGNode. Callbacks methods are
+  automatically called to perform basic operations like draw.
 """
 
 from pyray import *
@@ -22,7 +10,7 @@ import time, sys
 
 class privateNodeBase:
   """
-  private class. Game should not use this class
+    private class. Game should not use this class
   """
   # class variables (static)
   all_nodes = []
