@@ -58,8 +58,8 @@ class Girl(MiniGNode):
 
   def UpdateGirlState(self, state):
     if self.state != state:
-      anim_idx = 0
-      curr_anim = state
+      self.anim_idx = 0
+      self.curr_anim = state
     self.old_state = self.state
     self.state = state
 
@@ -105,14 +105,14 @@ class Girl(MiniGNode):
         self.speed = 0.0
         p.y = b.y
         in_air = False
-        curr_anim = self.state
+        self.curr_anim = self.state
         break
 
     if in_air == True: 
       # if (log) printf("in air %d\n", log_cnt);
       # if the girl is running we change the animation to jump as she is falling
       if self.state == ANIM_ID_RUN:
-          curr_anim = ANIM_ID_JUMP
+          self.curr_anim = ANIM_ID_JUMP
 
     if hitObstacle == False:
       self.position.y += self.speed*delta
@@ -181,7 +181,7 @@ class AnimInfo:
     self.frame_period = frame_period
 
 
-anim_array = (
+anim_array = [
   #--------------- idle ----------------
   AnimInfo(ANIM_ID_IDLE, "Idle", GIRL_DIR + "Idle-XX.png", 10),
 
@@ -202,4 +202,4 @@ anim_array = (
 
   #--------------- MeLee ----------------
   AnimInfo(ANIM_ID_MELEE, "MeLee", GIRL_DIR + "Melee-XX.png", 7),
-)
+]
